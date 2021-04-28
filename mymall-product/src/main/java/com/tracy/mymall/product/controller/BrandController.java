@@ -1,9 +1,11 @@
 package com.tracy.mymall.product.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +59,17 @@ public class BrandController {
      * 定义校验规则
      */
     @RequestMapping("/save")
-    public R save(@Valid @RequestBody BrandEntity brand){
+    public R save(@Valid @RequestBody BrandEntity brand, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorMap = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> {
+                String field = error.getField();
+                String defaultMessage = error.getDefaultMessage();
+                errorMap.put(field, defaultMessage);
+
+            });
+            return R.error(400, "数据校验异常").put("data", errorMap);
+        }
 		brandService.save(brand);
 
         return R.ok();
