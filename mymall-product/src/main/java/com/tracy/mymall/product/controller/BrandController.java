@@ -56,10 +56,11 @@ public class BrandController {
 
     /**
      * 保存
-     * 定义校验规则
+     * 定义校验规则,注释后在全局统一异常处理部分了
      */
     @RequestMapping("/save")
-    public R save(@Valid @RequestBody BrandEntity brand, BindingResult bindingResult){
+    public R save(@Valid @RequestBody BrandEntity brand/*, BindingResult bindingResult*/){
+       /*
         if (bindingResult.hasErrors()) {
             Map<String, String> errorMap = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> {
@@ -69,7 +70,7 @@ public class BrandController {
 
             });
             return R.error(400, "数据校验异常").put("data", errorMap);
-        }
+        }*/
 		brandService.save(brand);
 
         return R.ok();
