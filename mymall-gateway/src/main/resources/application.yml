@@ -1,0 +1,54 @@
+server:
+  port: 9505
+
+spring:
+  application:
+    name: mymall-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true  # 动态路哟
+      routes:
+        - id: mymall-coupon-route
+          uri: lb://mymall-coupon
+          predicates:
+            - Path=/coupon/**
+        - id: mymall-member-route
+          uri: lb://mymall-member
+          predicates:
+            - Path=/member/**
+        - id: mymall-ware-route
+          uri: lb://mymall-ware
+          predicates:
+            - Path=/ware/**
+        - id: mymall-order-route
+          uri: lb://mymall-order
+          predicates:
+            - Path=/order/**
+        - id: mymall-product-route
+          uri: lb://mymall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            # 路径重写
+            - RewritePath=/api(?<segment>/?.*), /$\{segment}
+        - id: mymall-thirdpart-route
+          uri: lb://mymall-thirdpart
+          predicates:
+            - Path=/api/thirdpart/**
+          filters:
+          # 路径重写
+            - RewritePath=/api/thirdpart(?<segment>/?.*), /$\{segment}
+        - id: admin-renrenfast-route
+          uri: lb://renren-fast
+          predicates:
+            #/api/** 需要放到最后，防止拦截更精确的路径
+            - Path=/api/**
+          filters:
+            # 路径重写，其中后面的/renren-fast代表需要访问的服务tomcat配置的servelet context-path
+            - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
+
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:3333

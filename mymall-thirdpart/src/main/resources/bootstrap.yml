@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:3333 # Nacos 作为配置中心地址
+        namespace: c56036a9-e9ac-40c6-ac1a-57684c630b58
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        ext-config:
+          - dataId: oos.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+    alicloud:
+      access-key: LTAI5tGSGbFy8eAoxSH4km77
+      secret-key: ausjEo81tlsT70L5Kf4sCMjqqJ4R39
+      bucketname: kexiaomeng-mymall-oss
+      oss:
+        endpoint: oss-cn-shanghai.aliyuncs.com
+  application:
+    name: mymall-thirdpart
