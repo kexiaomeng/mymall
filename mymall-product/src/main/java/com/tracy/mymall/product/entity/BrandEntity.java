@@ -6,6 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.tracy.mymall.common.valid.AddGroup;
+import com.tracy.mymall.common.valid.MyListStrict;
+import com.tracy.mymall.common.valid.UpdateGroup;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
@@ -26,18 +30,22 @@ public class BrandEntity implements Serializable {
 	/**
 	 * 品牌id
 	 */
+	@NotNull(message = "修改时品牌id不能为空",groups = {UpdateGroup.class})
+	@Null(message = "添加时品牌id必须为空",groups = {AddGroup.class})
 	@TableId
 	private Long brandId;
 	/**
 	 * 品牌名
 	 */
-	@NotBlank
+	@NotBlank(message = "品牌名不能为空", groups = {AddGroup.class})
 	private String name;
 	/**
 	 * 品牌logo地址
+	 * 如果在校验时@Validated指定了执行分组，如果某个校验规则没有分组，则不会匹配到
+	 * @URL(message = "url不符合规范",groups = {AddGroup.class, UpdateGroup.class})表示修改时可以不携带，但是如果带了，必须是url地址
 	 */
-	@NotEmpty
-	@URL
+	@NotEmpty(message = "logo url不能为空",groups = {AddGroup.class})
+	@URL(message = "url不符合规范",groups = {AddGroup.class, UpdateGroup.class})
 	private String logo;
 	/**
 	 * 介绍
@@ -46,17 +54,19 @@ public class BrandEntity implements Serializable {
 	/**
 	 * 显示状态[0-不显示；1-显示]
 	 */
+	@MyListStrict(value = {0,1})
 	private Integer showStatus;
 	/**
 	 * 检索首字母
 	 */
-	@NotNull
-	@Pattern(regexp = "^[a-zA-Z]$")
+	@NotNull(groups = {AddGroup.class})
+	@Pattern(regexp = "^[a-zA-Z]$",groups = {UpdateGroup.class, AddGroup.class})
 	private String firstLetter;
 	/**
 	 * 排序
 	 */
-	@Min(value = 0)
+	@NotNull(groups = {AddGroup.class})
+	@Min(value = 0,groups = {UpdateGroup.class, AddGroup.class})
 	private Integer sort;
 
 }

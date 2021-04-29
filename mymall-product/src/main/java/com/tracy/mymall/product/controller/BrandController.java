@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.tracy.mymall.common.valid.AddGroup;
+import com.tracy.mymall.common.valid.UpdateGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,10 +80,32 @@ public class BrandController {
     }
 
     /**
+     * 保存
+     * 定义校验规则,注释后在全局统一异常处理部分了
+     */
+    @RequestMapping("/saveg")
+    public R saveg(@Validated(AddGroup.class) @RequestBody BrandEntity brand/*, BindingResult bindingResult*/){
+       /*
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorMap = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> {
+                String field = error.getField();
+                String defaultMessage = error.getDefaultMessage();
+                errorMap.put(field, defaultMessage);
+
+            });
+            return R.error(400, "数据校验异常").put("data", errorMap);
+        }*/
+        brandService.save(brand);
+
+        return R.ok();
+    }
+
+    /**
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody BrandEntity brand){
+    public R update(@Validated(UpdateGroup.class)@RequestBody BrandEntity brand){
 		brandService.updateById(brand);
 
         return R.ok();
