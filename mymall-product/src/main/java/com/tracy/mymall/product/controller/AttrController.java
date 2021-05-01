@@ -37,11 +37,13 @@ public class AttrController {
 
     /**
      * 列表/product/attr/base/list/{catelogId}
-     * 根据三级分类查询属性列表
+     * 列表/product/attr/sale/list/{catelogId}
+     * 根据三级分类查询属性列表[base,sale]，PSU PKU
      */
-    @RequestMapping("/base/list/{catelogId}")
-    public R list(@RequestParam Map<String, Object> params, @PathVariable("catelogId")Long catelogId){
-        PageUtils page = attrService.queryBasePageByCategory(params, catelogId);
+    @RequestMapping("/{attrType}/list/{catelogId}")
+    public R list(@RequestParam Map<String, Object> params, @PathVariable("catelogId")Long catelogId,
+                  @PathVariable("attrType") String attrType){
+        PageUtils page = attrService.queryBasePageByCategory(params, catelogId, attrType);
 
         return R.ok().put("page", page);
     }

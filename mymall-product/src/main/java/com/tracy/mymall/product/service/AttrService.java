@@ -21,7 +21,7 @@ public interface AttrService extends IService<AttrEntity> {
 
     void saveCascade(AttrVo attr);
 
-    PageUtils queryBasePageByCategory(Map<String, Object> params, Long catelogId);
+    PageUtils queryBasePageByCategory(Map<String, Object> params, Long catelogId, String attrType);
 
     AttrRespVo getAttrInfo(Long attrId);
 

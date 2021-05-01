@@ -1,5 +1,6 @@
 package com.tracy.mymall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.tracy.mymall.product.entity.AttrAttrgroupRelationEntity;
 import com.tracy.mymall.product.entity.AttrGroupEntity;
 import com.tracy.mymall.product.entity.CategoryEntity;
@@ -69,9 +70,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
      * 需要查询出分类名和分组名
      */
     @Override
-    public PageUtils queryBasePageByCategory(Map<String, Object> params, Long catelogId) {
+    public PageUtils queryBasePageByCategory(Map<String, Object> params, Long catelogId, String attrType) {
         try {
             QueryWrapper<AttrEntity> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("attr_type", "base".equalsIgnoreCase(attrType) ? 1 : 0);
 
             IPage<AttrEntity> page = new Query<AttrEntity>().getPage(params);
             if (params.containsKey("key")) {
@@ -153,7 +155,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = new AttrAttrgroupRelationEntity();
             attrAttrgroupRelationEntity.setAttrId(attr.getAttrId());
             attrAttrgroupRelationEntity.setAttrGroupId(attr.getAttrGroupId());
-            attrAttrgroupRelationService.saveOrUpdate(attrAttrgroupRelationEntity);
+            attrAttrgroupRelationService.saveOrUpdate(attrAttrgroupRelationEntity, new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", entity.getAttrId()));
         }
     }
 
