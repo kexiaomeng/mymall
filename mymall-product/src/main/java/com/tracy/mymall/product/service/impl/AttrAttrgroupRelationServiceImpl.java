@@ -22,8 +22,15 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
                 new Query<AttrAttrgroupRelationEntity>().getPage(params),
                 new QueryWrapper<AttrAttrgroupRelationEntity>()
         );
-
         return new PageUtils(page);
+    }
+
+    @Override
+    public AttrAttrgroupRelationEntity queryByAttrId(Long attrId) {
+        QueryWrapper<AttrAttrgroupRelationEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("attr_id", attrId);
+
+        return this.getOne(queryWrapper);
     }
 
 }

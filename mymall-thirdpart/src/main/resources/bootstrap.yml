@@ -11,8 +11,8 @@ spring:
           group: DEFAULT_GROUP
           refresh: true
     alicloud:
-      access-key: LTAI5tGSGbFy8eAoxSH4kmmymall77
-      secret-key: ausjEo81tlsT70L5Kf4sCMjqqJ4Rmymall39
+      access-key: LTAI5tGSGbFy8eAoxSH4km77
+      secret-key: ausjEo81tlsT70L5Kf4sCMjqqJ4R39
       bucketname: kexiaomeng-mymall-oss
       oss:
         endpoint: oss-cn-shanghai.aliyuncs.com

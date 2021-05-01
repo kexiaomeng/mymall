@@ -1,9 +1,13 @@
 package com.tracy.mymall.product.service.impl;
 
 import com.tracy.mymall.product.common.CategoryLevelEnum;
+import com.tracy.mymall.product.service.CategoryBrandRelationService;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,11 +21,14 @@ import com.tracy.mymall.common.utils.Query;
 import com.tracy.mymall.product.dao.CategoryDao;
 import com.tracy.mymall.product.entity.CategoryEntity;
 import com.tracy.mymall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryEntity> page = this.page(
@@ -60,6 +67,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         baseMapper.deleteBatchIds(asList);
     }
 
+
+
     /**
      * 递归获取层级结构,递归结束的条件是filter条件筛选不到数据
      * @param currentCategory
@@ -77,6 +86,41 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 .sorted((entity1, entity2) -> (entity1.getSort() == null ? 0 : entity1.getSort()) - (entity2.getSort() == null ? 0 : entity2.getSort()))
                 .collect(Collectors.toList());
         return subCategories;
+    }
+
+    /**
+     * 获取分类层级，例如[2,5,255] /数码/手机/品牌
+     * @param catelogId
+     * @return
+     */
+    @Override
+    public Long[] findCategoryPath(Long catelogId) {
+        List<Long> categoryPathList = new ArrayList<>();
+        categoryPathList.add(catelogId);
+        CategoryEntity categoryEntity = baseMapper.selectById(catelogId);
+        // while循环遍历查询
+        while (categoryEntity != null && categoryEntity.getParentCid() != 0) {
+            categoryPathList.add(categoryEntity.getParentCid());
+            categoryEntity = baseMapper.selectById(categoryEntity.getParentCid());
+
+        }
+
+        Collections.reverse(categoryPathList);
+
+        return categoryPathList.toArray(new Long[categoryPathList.size()]);
+    }
+
+    /**
+     * 级联更新
+     * @param categoryEntity
+     */
+    @Override
+    @Transactional
+    public void updateCascade(CategoryEntity categoryEntity) {
+        baseMapper.updateById(categoryEntity);
+        if (StringUtils.isNotEmpty(categoryEntity.getName())) {
+            categoryBrandRelationService.updateCategoryName(categoryEntity.getCatId(), categoryEntity.getName());
+        }
     }
 
 }
