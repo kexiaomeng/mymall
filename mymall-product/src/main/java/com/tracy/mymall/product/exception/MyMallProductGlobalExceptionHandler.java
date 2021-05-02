@@ -36,8 +36,8 @@ public class MyMallProductGlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(Exception.class)
-    public R unknowExceptionHandler(Throwable throwable) {
-        return R.error(ExceptionEnum.UNKNOW_PRODUCT_EXCEPTION.getErrorCode(), ExceptionEnum.UNKNOW_PRODUCT_EXCEPTION.getDesc()).put("data", throwable.getMessage());
-    }
+//    @ExceptionHandler(Exception.class)
+//    public R unknowExceptionHandler(Throwable throwable) {
+//        return R.error(ExceptionEnum.UNKNOW_PRODUCT_EXCEPTION.getErrorCode(), ExceptionEnum.UNKNOW_PRODUCT_EXCEPTION.getDesc()).put("data", throwable.getMessage());
+//    }
 }

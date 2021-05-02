@@ -1,6 +1,8 @@
 package com.tracy.mymall.product.service.impl;
 
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -31,6 +33,15 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
         queryWrapper.eq("attr_id", attrId);
 
         return this.getOne(queryWrapper);
+    }
+
+    /**
+     * 根据attrid和attrgroupid批量删除
+     * @param collect
+     */
+    @Override
+    public void deleteBatchRelations(List<AttrAttrgroupRelationEntity> collect) {
+        this.baseMapper.deleteBatchRelations(collect);
     }
 
 }

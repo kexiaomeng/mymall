@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.product.entity.AttrAttrgroupRelationEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,5 +19,7 @@ public interface AttrAttrgroupRelationService extends IService<AttrAttrgroupRela
     PageUtils queryPage(Map<String, Object> params);
 
     AttrAttrgroupRelationEntity queryByAttrId(Long attrId);
+
+    void deleteBatchRelations(List<AttrAttrgroupRelationEntity> collect);
 }
 
