@@ -7,11 +7,16 @@ import com.tracy.mymall.product.dao.BrandDao;
 import com.tracy.mymall.product.dao.CategoryDao;
 import com.tracy.mymall.product.entity.BrandEntity;
 import com.tracy.mymall.product.entity.CategoryEntity;
+import com.tracy.mymall.product.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,6 +34,8 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     BrandDao brandDao;
     @Autowired
     CategoryDao categoryDao;
+    @Autowired
+    private BrandService brandService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryBrandRelationEntity> page = this.page(
@@ -81,6 +88,18 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
         UpdateWrapper<CategoryBrandRelationEntity> updateWrapper = new UpdateWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId);
         this.update(entity, updateWrapper);
+    }
+
+    @Override
+    public List<BrandEntity> getBrandsByCatId(Long catId) {
+        List<CategoryBrandRelationEntity> brandsRelations = this.list(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+        List<Long> brandIds = brandsRelations.stream().map(CategoryBrandRelationEntity::getBrandId).collect(Collectors.toList());
+        if (!brandIds.isEmpty()) {
+            Collection<BrandEntity> brandEntities = brandService.listByIds(brandIds);
+            return (List<BrandEntity>) brandEntities;
+        }
+        return new ArrayList<>();
+
     }
 
 }

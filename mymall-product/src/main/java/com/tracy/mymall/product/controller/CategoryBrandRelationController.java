@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.tracy.mymall.product.entity.BrandEntity;
+import com.tracy.mymall.product.vo.BrandRespVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +31,22 @@ public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
 
+
+    /**
+     * 根据分类id查询品牌
+     * /product/categorybrandrelation/brands/list
+     */
+    @GetMapping("/brands/list")
+    public R brandList(@RequestParam Long catId){
+        List<BrandEntity> brandEntities = categoryBrandRelationService.getBrandsByCatId(catId);
+        List<BrandRespVo> data = brandEntities.stream().map(item -> {
+            BrandRespVo brandRespVo = new BrandRespVo();
+            brandRespVo.setBrandId(item.getBrandId());
+            brandRespVo.setBrandName(item.getName());
+            return brandRespVo;
+        }).collect(Collectors.toList());
+        return R.ok().put("data", data);
+    }
     /**
      * 查询根据品牌ID分类品牌关联信息列表
      */

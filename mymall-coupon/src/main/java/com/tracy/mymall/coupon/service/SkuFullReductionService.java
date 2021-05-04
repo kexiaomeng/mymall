@@ -1,6 +1,7 @@
 package com.tracy.mymall.coupon.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tracy.mymall.common.dto.SkuReductionDto;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.coupon.entity.SkuFullReductionEntity;
 
@@ -16,5 +17,7 @@ import java.util.Map;
 public interface SkuFullReductionService extends IService<SkuFullReductionEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    void saveRecudtion(SkuReductionDto skuReductionDto);
 }
 

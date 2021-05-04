@@ -2,6 +2,7 @@ package com.tracy.mymall.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracy.mymall.common.utils.PageUtils;
+import com.tracy.mymall.product.entity.BrandEntity;
 import com.tracy.mymall.product.entity.CategoryBrandRelationEntity;
 
 import java.util.List;
@@ -25,5 +26,7 @@ public interface CategoryBrandRelationService extends IService<CategoryBrandRela
     void updateBrandName(Long brandId, String name);
 
     void updateCategoryName(Long catId, String name);
+
+    List<BrandEntity> getBrandsByCatId(Long catId);
 }
 

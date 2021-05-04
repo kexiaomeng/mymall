@@ -3,12 +3,9 @@ package com.tracy.mymall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.tracy.mymall.product.vo.SpuSaveVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tracy.mymall.product.entity.SpuInfoEntity;
 import com.tracy.mymall.product.service.SpuInfoService;
@@ -27,9 +24,19 @@ import com.tracy.mymall.common.utils.R;
 @RestController
 @RequestMapping("product/spuinfo")
 public class SpuInfoController {
+
     @Autowired
     private SpuInfoService spuInfoService;
-
+    /**
+     * 新增商品
+     * @param spuSaveVo
+     * @return
+     */
+    @PostMapping("/save")
+    public R saveSpuInfo(@RequestBody SpuSaveVo spuSaveVo) {
+        spuInfoService.saveSpuInfo(spuSaveVo);
+        return R.ok();
+    }
     /**
      * 列表
      */
@@ -52,14 +59,14 @@ public class SpuInfoController {
     }
 
     /**
-     * 保存
-     */
-    @RequestMapping("/save")
-    public R save(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.save(spuInfo);
-
-        return R.ok();
-    }
+//     * 保存
+//     */
+//    @RequestMapping("/save")
+//    public R save(@RequestBody SpuInfoEntity spuInfo){
+//		spuInfoService.save(spuInfo);
+//
+//        return R.ok();
+//    }
 
     /**
      * 修改

@@ -6,15 +6,19 @@ import com.tracy.mymall.product.service.AttrAttrgroupRelationService;
 import com.tracy.mymall.product.service.AttrService;
 import com.tracy.mymall.product.service.CategoryService;
 import com.tracy.mymall.product.vo.AttrAttrgroupVo;
+import com.tracy.mymall.product.vo.AttrGroupAttrRespVo;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -120,6 +124,47 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     public void addRelation(List<AttrAttrgroupVo> attrAttrgroupVos) {
         List<AttrAttrgroupRelationEntity> groups = attrAttrgroupVos.stream().map(item -> (AttrAttrgroupRelationEntity) item).collect(Collectors.toList());
         attrAttrgroupRelationService.saveBatch(groups);
+    }
+
+    /**
+     * 根据分类id查询属性分组和每个分组下的属性
+     * @param catelogId
+     * @return
+     */
+    @Override
+    public List<AttrGroupAttrRespVo> getAttrGroupAttrByCatelogId(Long catelogId) {
+        // 1. 根据分类id查出所欲分组
+        List<AttrGroupEntity> groups = this.list(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+        if (!groups.isEmpty()) {
+            // 2. 查询每个分组下的属性
+            List<Long> groupIds = groups.stream().map(AttrGroupEntity::getAttrGroupId).collect(Collectors.toList());
+            List<AttrAttrgroupRelationEntity> relations = attrAttrgroupRelationService.list(new QueryWrapper<AttrAttrgroupRelationEntity>().in("attr_group_id", groupIds));
+            List<Long> attrIds = relations.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
+            List<AttrEntity> attrEntities = new ArrayList<>();
+            if (!attrIds.isEmpty()) {
+                attrEntities = (List<AttrEntity>) attrService.listByIds(attrIds);
+
+            }
+            // 遍历写入
+            List<AttrEntity> finalAttrEntities = attrEntities;
+            List<AttrGroupAttrRespVo> collect = groups.stream().map(group -> {
+                AttrGroupAttrRespVo respVo = new AttrGroupAttrRespVo();
+                respVo.setAttrs(new ArrayList<>());
+                BeanUtils.copyProperties(group, respVo);
+                relations.stream().forEach(item -> {
+                    if (item.getAttrGroupId().equals(respVo.getAttrGroupId())) {
+                        for (int i = 0; i < finalAttrEntities.size(); i++) {
+                            if (item.getAttrId().equals(finalAttrEntities.get(i).getAttrId())) {
+                                respVo.getAttrs().add(finalAttrEntities.get(i));
+                            }
+                        }
+                    }
+                });
+                return respVo;
+            }).collect(Collectors.toList());
+            return collect;
+        }
+        return new ArrayList<>();
     }
 
     @Override

@@ -13,19 +13,29 @@ spring:
         - id: mymall-coupon-route
           uri: lb://mymall-coupon
           predicates:
-            - Path=/coupon/**
+            - Path=/api/coupon/**
+          filters:
+          # 路径重写
+            - RewritePath=/api(?<segment>/?.*), /$\{segment}
         - id: mymall-member-route
           uri: lb://mymall-member
           predicates:
-            - Path=/member/**
+            - Path=/api/member/**
+          # 路径重写
+
+          filters:
+            - RewritePath=/api(?<segment>/?.*), /$\{segment}
         - id: mymall-ware-route
           uri: lb://mymall-ware
           predicates:
-            - Path=/ware/**
+            - Path=/api/ware/**
+          filters:
+          # 路径重写
+            - RewritePath=/api(?<segment>/?.*), /$\{segment}
         - id: mymall-order-route
           uri: lb://mymall-order
           predicates:
-            - Path=/order/**
+            - Path=/api/order/**
         - id: mymall-product-route
           uri: lb://mymall-product
           predicates:

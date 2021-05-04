@@ -7,6 +7,7 @@ import java.util.Map;
 import com.tracy.mymall.product.entity.AttrEntity;
 import com.tracy.mymall.product.service.CategoryService;
 import com.tracy.mymall.product.vo.AttrAttrgroupVo;
+import com.tracy.mymall.product.vo.AttrGroupAttrRespVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,18 @@ public class AttrGroupController {
 
     @Autowired
     private CategoryService categoryService;
+    /**
+     *
+     *获取分类下所有分组&关联属性
+     * /product/attrgroup/{catelogId}/withattr
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupAttrByCatelogId(@PathVariable("catelogId") Long catelogId) {
 
+        List<AttrGroupAttrRespVo> data = attrGroupService.getAttrGroupAttrByCatelogId(catelogId);
+        return R.ok().put("data",data);
 
+    }
     /**
      * 添加分组/product/attrgroup/attr/relation
      */

@@ -3,6 +3,7 @@ package com.tracy.mymall.coupon.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.tracy.mymall.common.dto.SkuReductionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,6 +58,16 @@ public class SkuFullReductionController {
     @RequestMapping("/save")
     public R save(@RequestBody SkuFullReductionEntity skuFullReduction){
 		skuFullReductionService.save(skuFullReduction);
+
+        return R.ok();
+    }
+
+    /**
+     * 保存
+     */
+    @RequestMapping("/saveInfo")
+    public R saveInfo(@RequestBody SkuReductionDto skuReductionDto){
+        skuFullReductionService.saveRecudtion(skuReductionDto);
 
         return R.ok();
     }
