@@ -1,4 +1,4 @@
-package com.tracy.mymall.product.controller;
+package com.tracy.mymall.product.app;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -10,32 +10,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tracy.mymall.product.entity.SkuImagesEntity;
-import com.tracy.mymall.product.service.SkuImagesService;
+import com.tracy.mymall.product.entity.UndoLogEntity;
+import com.tracy.mymall.product.service.UndoLogService;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.common.utils.R;
 
 
 
 /**
- * sku图片
+ * 
  *
  * @author kexiaomeng
  * @email kexiaomeng@foxmail.com
- * @date 2021-04-22 00:34:22
+ * @date 2021-04-21 22:00:43
  */
 @RestController
-@RequestMapping("product/skuimages")
-public class SkuImagesController {
+@RequestMapping("product/undolog")
+public class UndoLogController {
     @Autowired
-    private SkuImagesService skuImagesService;
+    private UndoLogService undoLogService;
 
     /**
      * 列表
      */
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = skuImagesService.queryPage(params);
+        PageUtils page = undoLogService.queryPage(params);
 
         return R.ok().put("page", page);
     }
@@ -46,17 +46,17 @@ public class SkuImagesController {
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
-		SkuImagesEntity skuImages = skuImagesService.getById(id);
+		UndoLogEntity undoLog = undoLogService.getById(id);
 
-        return R.ok().put("skuImages", skuImages);
+        return R.ok().put("undoLog", undoLog);
     }
 
     /**
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody SkuImagesEntity skuImages){
-		skuImagesService.save(skuImages);
+    public R save(@RequestBody UndoLogEntity undoLog){
+		undoLogService.save(undoLog);
 
         return R.ok();
     }
@@ -65,8 +65,8 @@ public class SkuImagesController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody SkuImagesEntity skuImages){
-		skuImagesService.updateById(skuImages);
+    public R update(@RequestBody UndoLogEntity undoLog){
+		undoLogService.updateById(undoLog);
 
         return R.ok();
     }
@@ -76,7 +76,7 @@ public class SkuImagesController {
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] ids){
-		skuImagesService.removeByIds(Arrays.asList(ids));
+		undoLogService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }

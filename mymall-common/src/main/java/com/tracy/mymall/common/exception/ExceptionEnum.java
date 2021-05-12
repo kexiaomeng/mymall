@@ -8,8 +8,8 @@ public enum  ExceptionEnum {
 
     UNKNOW_EXCEPTION(10000, "全局未知异常"),
     UNKNOW_PRODUCT_EXCEPTION(11000, "商品服务未知异常"),
-    VALID_PRODUCT_EXCEPTION(11001,"商品服务参数校验异常");
-
+    VALID_PRODUCT_EXCEPTION(11001,"商品服务参数校验异常"),
+    PRODUCT_ES_STATUS_UP(11002, "商品信息上架保存到es中异常");
     private int errorCode;
     private String desc;
 

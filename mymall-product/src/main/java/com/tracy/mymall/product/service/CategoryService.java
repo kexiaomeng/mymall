@@ -3,6 +3,7 @@ package com.tracy.mymall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.product.entity.CategoryEntity;
+import com.tracy.mymall.product.vo.CateLogIndexVo;
 
 import java.util.List;
 import java.util.Map;
@@ -33,5 +34,9 @@ public interface CategoryService extends IService<CategoryEntity> {
     Long[] findCategoryPath(Long catelogId);
 
     void updateCascade(CategoryEntity categoryEntity);
+
+    List<CategoryEntity> getFirsetLevelCategory();
+
+    Map<String, List<CateLogIndexVo>> getCateLogIndexJson();
 }
 

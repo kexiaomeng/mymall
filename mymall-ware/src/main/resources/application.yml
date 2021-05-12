@@ -5,6 +5,8 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 spring:
   application:
@@ -62,4 +64,7 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:3333
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+
 

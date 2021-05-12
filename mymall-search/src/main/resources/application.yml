@@ -1,0 +1,10 @@
+server:
+  port: 9507
+
+spring:
+  application:
+    name: mymall-search
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:3333

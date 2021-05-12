@@ -1,4 +1,4 @@
-package com.tracy.mymall.product.controller;
+package com.tracy.mymall.product.app;
 
 import java.util.Arrays;
 import java.util.List;

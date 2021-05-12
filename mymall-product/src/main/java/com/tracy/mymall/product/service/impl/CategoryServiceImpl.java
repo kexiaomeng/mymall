@@ -2,6 +2,7 @@ package com.tracy.mymall.product.service.impl;
 
 import com.tracy.mymall.product.common.CategoryLevelEnum;
 import com.tracy.mymall.product.service.CategoryBrandRelationService;
+import com.tracy.mymall.product.vo.CateLogIndexVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -121,6 +122,52 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         if (StringUtils.isNotEmpty(categoryEntity.getName())) {
             categoryBrandRelationService.updateCategoryName(categoryEntity.getCatId(), categoryEntity.getName());
         }
+    }
+
+    @Override
+    public List<CategoryEntity> getFirsetLevelCategory() {
+        List<CategoryEntity> categoryEntities = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("cat_level", CategoryLevelEnum.LEVEL_ONE.getNumber()));
+        return categoryEntities;
+    }
+
+    @Override
+    public Map<String, List<CateLogIndexVo>> getCateLogIndexJson() {
+        // 1. 查询一级分类
+        List<CategoryEntity> firsetLevelCategory = this.getFirsetLevelCategory();
+        Map<String, List<CateLogIndexVo>> collect = firsetLevelCategory
+                .stream()
+                // 将数据收集成map
+                .collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+                    // 根据一级分类查询二级分类
+                    List<CategoryEntity> secondLevel = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+                    List<CateLogIndexVo> cateLogIndexVos = new ArrayList<>();
+                    if (secondLevel != null) {
+                        // 根据二级分类查询三级分类
+                        cateLogIndexVos = secondLevel.stream().map(item -> {
+                            CateLogIndexVo cateLogIndexVo = new CateLogIndexVo();
+                            cateLogIndexVo.setCatalog1Id(v.getCatId());
+                            cateLogIndexVo.setId(item.getCatId());
+                            cateLogIndexVo.setName(item.getName());
+                            List<CategoryEntity> thirdLevel = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", item.getCatId()));
+                            List<CateLogIndexVo.CateLog3Vo> cateLog3Vos = new ArrayList<>();
+                            if (thirdLevel != null && !thirdLevel.isEmpty()) {
+                                // 组装3级分类信息
+                                cateLog3Vos = thirdLevel.stream().map(level -> {
+                                    CateLogIndexVo.CateLog3Vo cateLog3Vo = new CateLogIndexVo.CateLog3Vo();
+                                    cateLog3Vo.setCatalog2Id(item.getCatId());
+                                    cateLog3Vo.setId(level.getCatId());
+                                    cateLog3Vo.setName(level.getName());
+                                    return cateLog3Vo;
+                                }).collect(Collectors.toList());
+                            }
+                            cateLogIndexVo.setCatalog3List(cateLog3Vos);
+                            return cateLogIndexVo;
+                        }).collect(Collectors.toList());
+                    }
+                    return cateLogIndexVos;
+
+            }));
+            return collect;
     }
 
 }

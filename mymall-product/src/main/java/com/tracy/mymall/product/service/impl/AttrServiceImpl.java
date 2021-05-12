@@ -2,12 +2,8 @@ package com.tracy.mymall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.tracy.mymall.common.constant.ProductConst;
-import com.tracy.mymall.product.entity.AttrAttrgroupRelationEntity;
-import com.tracy.mymall.product.entity.AttrGroupEntity;
-import com.tracy.mymall.product.entity.CategoryEntity;
-import com.tracy.mymall.product.service.AttrAttrgroupRelationService;
-import com.tracy.mymall.product.service.AttrGroupService;
-import com.tracy.mymall.product.service.CategoryService;
+import com.tracy.mymall.product.entity.*;
+import com.tracy.mymall.product.service.*;
 import com.tracy.mymall.product.vo.AttrRespVo;
 import com.tracy.mymall.product.vo.AttrVo;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +22,6 @@ import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.common.utils.Query;
 
 import com.tracy.mymall.product.dao.AttrDao;
-import com.tracy.mymall.product.entity.AttrEntity;
-import com.tracy.mymall.product.service.AttrService;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -40,6 +34,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     private AttrGroupService attrGroupService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<AttrEntity> page = this.page(
@@ -176,6 +172,26 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), queryWrapper);
         return new PageUtils(page);
+    }
+
+    @Override
+    public List<ProductAttrValueEntity> listAttrsforSpu(Long spuId) {
+        List<ProductAttrValueEntity> list = productAttrValueService.list(new QueryWrapper<ProductAttrValueEntity>().eq("spu_id", spuId));
+        return list;
+    }
+
+    @Override
+    public void updateSpuAttrs(Long spuId, List<ProductAttrValueEntity> attrValueEntities) {
+        for (ProductAttrValueEntity attrValueEntity : attrValueEntities) {
+            attrValueEntity.setSpuId(spuId);
+            productAttrValueService.update(attrValueEntity,
+                    new UpdateWrapper<ProductAttrValueEntity>().eq("spu_id", spuId).eq("attr_id", attrValueEntity.getAttrId()));
+        }
+    }
+
+    @Override
+    public List<Long> selectSearchIds(List<Long> attrIds) {
+        return this.baseMapper.selectSearchIds(attrIds);
     }
 
 }

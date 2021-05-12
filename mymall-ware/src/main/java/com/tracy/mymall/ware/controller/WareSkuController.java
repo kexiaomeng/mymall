@@ -1,14 +1,12 @@
 package com.tracy.mymall.ware.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.tracy.mymall.common.dto.SkuHasStockDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tracy.mymall.ware.entity.WareSkuEntity;
 import com.tracy.mymall.ware.service.WareSkuService;
@@ -29,7 +27,16 @@ import com.tracy.mymall.common.utils.R;
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+    /**
+     * 查询商品是否有库存
+     */
+    @PostMapping("/hasStock")
+    public R hasStock(@RequestBody List<Long> skuIds){
+        List<SkuHasStockDto> hasStockDtoList = wareSkuService.hasStock(skuIds);
 
+
+        return R.ok().put("data", hasStockDtoList);
+    }
     /**
      * 列表
      */

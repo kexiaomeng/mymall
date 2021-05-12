@@ -58,6 +58,12 @@ spring:
           filters:
             # 路径重写，其中后面的/renren-fast代表需要访问的服务tomcat配置的servelet context-path
             - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
+        # nginx反向代理访问mymall.com:1111后转向的地址
+        - id: mymall_nginx_route
+          uri: lb://mymall-product
+          predicates:
+            - Host=**.mymall.com
+
 
     nacos:
       discovery:

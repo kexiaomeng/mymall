@@ -1,4 +1,4 @@
-package com.tracy.mymall.product.controller;
+package com.tracy.mymall.product.app;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -28,6 +28,14 @@ public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
     /**
+     * 商品上架功能，按照SPU上架
+     */
+    @PostMapping("/{spuId}/up")
+    public R spuUp(@PathVariable("spuId") Long spuId) {
+        spuInfoService.spuUp(spuId);
+        return R.ok();
+    }
+    /**
      * 新增商品
      * @param spuSaveVo
      * @return
@@ -42,7 +50,7 @@ public class SpuInfoController {
      */
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = spuInfoService.queryPage(params);
+        PageUtils page = spuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }

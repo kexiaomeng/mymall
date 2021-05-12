@@ -3,6 +3,7 @@ package com.tracy.mymall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.product.entity.AttrEntity;
+import com.tracy.mymall.product.entity.ProductAttrValueEntity;
 import com.tracy.mymall.product.vo.AttrRespVo;
 import com.tracy.mymall.product.vo.AttrVo;
 
@@ -29,5 +30,11 @@ public interface AttrService extends IService<AttrEntity> {
     void updateAttrVo(AttrVo attr);
 
     PageUtils queryNotRelatedPage(Map<String, Object> params, List<Long> attrIds, Long catelogId);
+
+    List<ProductAttrValueEntity> listAttrsforSpu(Long spuId);
+
+    void updateSpuAttrs(Long spuId, List<ProductAttrValueEntity> attrValueEntities);
+
+    List<Long> selectSearchIds(List<Long> attrIds);
 }
 

@@ -1,13 +1,11 @@
-package com.tracy.mymall.product.controller;
+package com.tracy.mymall.product.app;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.tracy.mymall.common.valid.AddGroup;
 import com.tracy.mymall.common.valid.UpdateGroup;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;

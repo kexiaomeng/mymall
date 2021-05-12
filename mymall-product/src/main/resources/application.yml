@@ -13,6 +13,8 @@ mybatis-plus:
 spring:
   application:
     name: mymall-product
+  thymeleaf:
+    cache: false
   datasource:
     druid:
       driver-class-name: com.mysql.jdbc.Driver
@@ -68,3 +70,7 @@ spring:
         server-addr: 127.0.0.1:3333
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
+  mvc:
+    static-path-pattern: /static/**
+#  resources:
+#    static-locations: classpath:/resources/static/**

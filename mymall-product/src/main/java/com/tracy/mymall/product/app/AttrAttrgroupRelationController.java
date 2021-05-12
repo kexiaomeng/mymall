@@ -1,4 +1,4 @@
-package com.tracy.mymall.product.controller;
+package com.tracy.mymall.product.app;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -10,32 +10,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tracy.mymall.product.entity.UndoLogEntity;
-import com.tracy.mymall.product.service.UndoLogService;
+import com.tracy.mymall.product.entity.AttrAttrgroupRelationEntity;
+import com.tracy.mymall.product.service.AttrAttrgroupRelationService;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.common.utils.R;
 
 
 
 /**
- * 
+ * 属性&属性分组关联
  *
  * @author kexiaomeng
  * @email kexiaomeng@foxmail.com
- * @date 2021-04-21 22:00:43
+ * @date 2021-04-22 00:34:22
  */
 @RestController
-@RequestMapping("product/undolog")
-public class UndoLogController {
+@RequestMapping("product/attrattrgrouprelation")
+public class AttrAttrgroupRelationController {
     @Autowired
-    private UndoLogService undoLogService;
+    private AttrAttrgroupRelationService attrAttrgroupRelationService;
 
     /**
      * 列表
      */
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = undoLogService.queryPage(params);
+        PageUtils page = attrAttrgroupRelationService.queryPage(params);
 
         return R.ok().put("page", page);
     }
@@ -46,17 +46,17 @@ public class UndoLogController {
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
-		UndoLogEntity undoLog = undoLogService.getById(id);
+		AttrAttrgroupRelationEntity attrAttrgroupRelation = attrAttrgroupRelationService.getById(id);
 
-        return R.ok().put("undoLog", undoLog);
+        return R.ok().put("attrAttrgroupRelation", attrAttrgroupRelation);
     }
 
     /**
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody UndoLogEntity undoLog){
-		undoLogService.save(undoLog);
+    public R save(@RequestBody AttrAttrgroupRelationEntity attrAttrgroupRelation){
+		attrAttrgroupRelationService.save(attrAttrgroupRelation);
 
         return R.ok();
     }
@@ -65,8 +65,8 @@ public class UndoLogController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody UndoLogEntity undoLog){
-		undoLogService.updateById(undoLog);
+    public R update(@RequestBody AttrAttrgroupRelationEntity attrAttrgroupRelation){
+		attrAttrgroupRelationService.updateById(attrAttrgroupRelation);
 
         return R.ok();
     }
@@ -76,7 +76,7 @@ public class UndoLogController {
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] ids){
-		undoLogService.removeByIds(Arrays.asList(ids));
+		attrAttrgroupRelationService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }

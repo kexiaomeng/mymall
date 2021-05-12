@@ -30,12 +30,13 @@ public class WareInfoController {
     @Autowired
     private WareInfoService wareInfoService;
 
+
     /**
      * 列表
      */
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = wareInfoService.queryPage(params);
+        PageUtils page = wareInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }
