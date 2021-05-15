@@ -39,7 +39,7 @@ spring:
         - id: mymall-product-route
           uri: lb://mymall-product
           predicates:
-            - Path=/api/product/**
+            - Path=/api/product/**,/hello/**
           filters:
             # 路径重写
             - RewritePath=/api(?<segment>/?.*), /$\{segment}

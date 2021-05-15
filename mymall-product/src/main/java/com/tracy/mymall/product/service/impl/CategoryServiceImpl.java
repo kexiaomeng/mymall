@@ -126,20 +126,23 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Override
     public List<CategoryEntity> getFirsetLevelCategory() {
-        List<CategoryEntity> categoryEntities = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("cat_level", CategoryLevelEnum.LEVEL_ONE.getNumber()));
+        List<CategoryEntity> categoryEntities = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", CategoryLevelEnum.DEFAULT.getNumber()));
         return categoryEntities;
     }
 
     @Override
     public Map<String, List<CateLogIndexVo>> getCateLogIndexJson() {
+        // 查询出所有的记录
+        List<CategoryEntity> categoryEntities = this.baseMapper.selectList(null);
+
         // 1. 查询一级分类
-        List<CategoryEntity> firsetLevelCategory = this.getFirsetLevelCategory();
+        List<CategoryEntity> firsetLevelCategory = this.getCategoriesByParentId(categoryEntities, 0L);
         Map<String, List<CateLogIndexVo>> collect = firsetLevelCategory
                 .stream()
                 // 将数据收集成map
                 .collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
                     // 根据一级分类查询二级分类
-                    List<CategoryEntity> secondLevel = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
+                    List<CategoryEntity> secondLevel = this.getCategoriesByParentId(categoryEntities, v.getCatId());
                     List<CateLogIndexVo> cateLogIndexVos = new ArrayList<>();
                     if (secondLevel != null) {
                         // 根据二级分类查询三级分类
@@ -148,7 +151,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                             cateLogIndexVo.setCatalog1Id(v.getCatId());
                             cateLogIndexVo.setId(item.getCatId());
                             cateLogIndexVo.setName(item.getName());
-                            List<CategoryEntity> thirdLevel = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", item.getCatId()));
+                            List<CategoryEntity> thirdLevel =  this.getCategoriesByParentId(categoryEntities, item.getCatId());
                             List<CateLogIndexVo.CateLog3Vo> cateLog3Vos = new ArrayList<>();
                             if (thirdLevel != null && !thirdLevel.isEmpty()) {
                                 // 组装3级分类信息
@@ -168,6 +171,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
             }));
             return collect;
+    }
+
+    public List<CategoryEntity> getCategoriesByParentId(List<CategoryEntity> allCategories, Long parentId) {
+        List<CategoryEntity> collect = allCategories.stream().filter(item -> item.getParentCid().equals(parentId)).collect(Collectors.toList());
+        return collect;
     }
 
 }

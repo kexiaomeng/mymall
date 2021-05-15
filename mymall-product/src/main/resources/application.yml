@@ -7,8 +7,9 @@ mybatis-plus:
       id-type: auto
       logic-delete-value: 0
       logic-not-delete-value: 1
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 
 spring:
   application:
@@ -73,4 +74,7 @@ spring:
   mvc:
     static-path-pattern: /static/**
 #  resources:
+logging:
+  level:
+    com.tracy.mymall: error
 #    static-locations: classpath:/resources/static/**
