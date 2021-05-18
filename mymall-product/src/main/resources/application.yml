@@ -1,5 +1,4 @@
-server:
-  port: 9500
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
@@ -73,8 +72,23 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   mvc:
     static-path-pattern: /static/**
+  redis:
+    host: 127.0.0.1
+    port: 6382
+
 #  resources:
 logging:
   level:
     com.tracy.mymall: error
 #    static-locations: classpath:/resources/static/**
+
+---
+spring:
+  profiles: test1
+server:
+  port: 9500
+---
+spring:
+  profiles: test2
+server:
+  port: 9400
