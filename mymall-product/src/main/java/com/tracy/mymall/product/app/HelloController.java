@@ -25,8 +25,8 @@ public class HelloController {
         }finally {
             llock.unlock();
         }
-        CountDownLatch
-        redisson.getCountDownLatch()
+//        CountDownLatch
+//        redisson.getCountDownLatch()
         return "hello";
     }
 

@@ -6,7 +6,11 @@ import com.tracy.mymall.product.common.CategoryLevelEnum;
 import com.tracy.mymall.product.service.CategoryBrandRelationService;
 import com.tracy.mymall.product.vo.CateLogIndexVo;
 import org.apache.commons.lang.StringUtils;
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
+import org.redisson.api.RReadWriteLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -36,6 +40,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+    @Autowired
+    private Redisson redisson;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryEntity> page = this.page(
@@ -124,14 +131,32 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Override
     @Transactional
     public void updateCascade(CategoryEntity categoryEntity) {
-        baseMapper.updateById(categoryEntity);
-        if (StringUtils.isNotEmpty(categoryEntity.getName())) {
-            categoryBrandRelationService.updateCategoryName(categoryEntity.getCatId(), categoryEntity.getName());
+        // 细粒度写锁锁，保证缓存一致性
+        RReadWriteLock readWriteLock = redisson.getReadWriteLock("catelogIndex-lock");
+
+        RLock lock = readWriteLock.writeLock();
+        lock.lock();
+        try {
+            baseMapper.updateById(categoryEntity);
+            if (StringUtils.isNotEmpty(categoryEntity.getName())) {
+                categoryBrandRelationService.updateCategoryName(categoryEntity.getCatId(), categoryEntity.getName());
+            }
+            // 如果数据更新完毕，则删除缓存中的数据，让读取时候重新加载
+            stringRedisTemplate.delete("catelogIndex");
+        }catch(Exception e) {
+            log.error("", e);
+        }finally {
+            lock.unlock();
         }
+
     }
 
     @Override
+    //如果缓存中有数据，则在查询时候不执行方法，直接从缓存中拿数据，否则将方法执行结果缓存到firstLevelCategory分组下，
+    //可以指定redis中缓存的key值,key可以使用esl表达式
+    @Cacheable(value = "firstLevelCategory", key="#root.method.name")
     public List<CategoryEntity> getFirsetLevelCategory() {
+        System.out.println("数据没有缓存，进来了");
         List<CategoryEntity> categoryEntities = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", CategoryLevelEnum.DEFAULT.getNumber()));
         return categoryEntities;
     }
@@ -143,13 +168,55 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         String catelogIndex = stringRedisTemplate.opsForValue().get("catelogIndex");
         // 如果缓存中没有，则查询数据库
         if (StringUtils.isEmpty(catelogIndex)) {
-            return getCateLogIndexByDistributeLock();
+            return getCateLogIndexByDistributeRedissoLock();
         }
         System.out.println("我没进来，嘿嘿嘿嘿嘿嘿嘿嘿");
         // 反序列化
         Map<String, List<CateLogIndexVo>> stringListMap = JSON.parseObject(catelogIndex, new TypeReference<Map<String, List<CateLogIndexVo>>>() {});
         return stringListMap;
     }
+
+
+    /**
+     *  使用redisson实现分布式锁，比redis原生简单许多,我们自己不需要考虑续期，原子性等问题
+     *  使用读锁配和数据修改地方的写锁实现缓存一致性
+     * @return
+     */
+    private Map<String, List<CateLogIndexVo>> getCateLogIndexByDistributeRedissoLock() {
+        Map<String, List<CateLogIndexVo>> stringListMap = null;
+        String uuid = UUID.randomUUID().toString();
+        // 细粒度加读锁锁
+        RReadWriteLock readWriteLock = redisson.getReadWriteLock("catelogIndex-lock");
+
+        RLock lock = readWriteLock.readLock();
+        lock.lock();
+        try {
+            String catelogIndex = stringRedisTemplate.opsForValue().get("catelogIndex");
+            // 双重检查
+            if (StringUtils.isEmpty(catelogIndex)) {
+                stringListMap = queryCateLogIndexFromDb();
+                // 没有就写入null值，防止溢出 TODO 处理null值
+                String redisValue = "null";
+                // 存入redis，加过期时间
+                if (stringListMap != null && !stringListMap.isEmpty()) {
+                    redisValue = JSON.toJSONString(stringListMap);
+                }
+                stringRedisTemplate.opsForValue().set("catelogIndex", redisValue, 30 * 60 , TimeUnit.SECONDS);
+            }else {
+                stringListMap = JSON.parseObject(catelogIndex, new TypeReference<Map<String, List<CateLogIndexVo>>>() {});
+            }
+            stringRedisTemplate.execute(new DefaultRedisScript<Long>(RELEASE_LOCK_LUA_SCRIPT,Long.class),Collections.singletonList("lock"), uuid);
+            return stringListMap;
+        }catch(Exception e) {
+            log.error("", e);
+        }finally {
+            lock.unlock();
+        }
+
+        return null;
+
+    }
+
 
     /**
      *  分布式锁获取数据库内容
