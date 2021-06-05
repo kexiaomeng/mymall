@@ -1,7 +1,14 @@
 package com.tracy.mymall.common.constant;
 
 public class ProductConst {
-    public static String PRODUCT_ES_INDEX = "product";
+    /**
+     * 商品SKU对应得es中得index
+     */
+    public static String PRODUCT_ES_INDEX = "mymall_product";
+    /**
+     * 每页多少记录
+     */
+    public static int PRODUCT_ES_PAGE = 2;
     public enum AttrEnum{
         BASE_TYPE(1, "规格属性"),
         SALE_TYPE(0, "销售属性");

@@ -14074,7 +14074,7 @@ var hasOwnProperty = objectProto.hasOwnProperty;
  * `now`, `pad`, `padLeft`, `padRight`, `parseInt`, `pop`, `random`, `reduce`,
  * `reduceRight`, `repeat`, `result`, `round`, `runInContext`, `shift`, `size`,
  * `snakeCase`, `some`, `sortedIndex`, `sortedLastIndex`, `startCase`,
- * `startsWith`, `sum`, `template`, `trim`, `trimLeft`, `trimRight`, `trunc`,
+ * `startsWith`, `sum`, `templates`, `trim`, `trimLeft`, `trimRight`, `trunc`,
  * `unescape`, `uniqueId`, `value`, and `words`
  *
  * The wrapper method `sample` will return a wrapped value when `n` is provided,
@@ -14310,7 +14310,7 @@ var arrayMap = require('../internal/arrayMap'),
  * The guarded methods are:
  * `ary`, `callback`, `chunk`, `clone`, `create`, `curry`, `curryRight`,
  * `drop`, `dropRight`, `every`, `fill`, `flatten`, `invert`, `max`, `min`,
- * `parseInt`, `slice`, `sortBy`, `take`, `takeRight`, `template`, `trim`,
+ * `parseInt`, `slice`, `sortBy`, `take`, `takeRight`, `templates`, `trim`,
  * `trimLeft`, `trimRight`, `trunc`, `random`, `range`, `sample`, `some`,
  * `sum`, `uniq`, and `words`
  *
@@ -24097,7 +24097,7 @@ SwaggerUi.Views.ParameterView = Backbone.View.extend({
     }
   },
 
-  // Return an appropriate template based on if the parameter is a list, readonly, required
+  // Return an appropriate templates based on if the parameter is a list, readonly, required
   template: function(){
     if (this.model.isList) {
       return Handlebars.templates.param_list;

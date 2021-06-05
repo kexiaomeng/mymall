@@ -7,6 +7,8 @@ import com.tracy.mymall.product.service.AttrService;
 import com.tracy.mymall.product.service.CategoryService;
 import com.tracy.mymall.product.vo.AttrAttrgroupVo;
 import com.tracy.mymall.product.vo.AttrGroupAttrRespVo;
+import com.tracy.mymall.product.vo.SkuItemVo;
+import com.tracy.mymall.product.vo.SpuItemGroupAttrVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,6 +167,11 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             return collect;
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<SpuItemGroupAttrVo> getAttrGroupAttrBySpuId(long spuId, long catelogId) {
+        return this.baseMapper.getAttrGroupAttrBySpuId(spuId, catelogId);
     }
 
     @Override

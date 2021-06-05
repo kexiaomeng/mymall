@@ -19,9 +19,9 @@ if (typeof jQuery === "undefined") {
 /* AdminLTE
  *
  * @type Object
- * @description $.AdminLTE is the main object for the template's app.
+ * @description $.AdminLTE is the main object for the templates's app.
  *              It's used for implementing functions and options related
- *              to the template. Keeping everything wrapped in an object
+ *              to the templates. Keeping everything wrapped in an object
  *              prevents conflict with other plugins and is a better
  *              way to organize our code.
  */

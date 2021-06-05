@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: mymall-search
+  thymeleaf:
+    cache: false
   cloud:
     nacos:
       discovery:

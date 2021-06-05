@@ -38,5 +38,7 @@ public interface CategoryService extends IService<CategoryEntity> {
     List<CategoryEntity> getFirsetLevelCategory();
 
     Map<String, List<CateLogIndexVo>> getCateLogIndexJson();
+    public void updateCascadeConsistency(CategoryEntity categoryEntity);
+    public Map<String, List<CateLogIndexVo>> getCateLogIndexJsonConcurrent();
 }
 

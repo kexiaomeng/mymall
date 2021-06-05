@@ -10,7 +10,9 @@ import org.redisson.Redisson;
 import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -130,7 +132,38 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     @Transactional
+    // 更新后删除redis中的缓存
+//    @CacheEvict(value = "firstLevelCategory", key = "'getFirsetLevelCategory'")
+    // 批量删除的两种方法
+    // 1.组合删除
+    @Caching(evict = {
+            @CacheEvict(value = "category", key = "'getFirsetLevelCategory'"),
+            @CacheEvict(value = "category", key = "'getCateLogIndexJson'")
+        })
+    // 2.使用CacheEvict的allentities删除value分组下的所有数据
+//    @CacheEvict(value = "firstLevelCategory", key = "'getFirsetLevelCategory'", allEntries = true)
+
     public void updateCascade(CategoryEntity categoryEntity) {
+
+        try {
+            baseMapper.updateById(categoryEntity);
+            if (StringUtils.isNotEmpty(categoryEntity.getName())) {
+                categoryBrandRelationService.updateCategoryName(categoryEntity.getCatId(), categoryEntity.getName());
+            }
+
+        }catch(Exception e) {
+            log.error("", e);
+        }
+
+    }
+
+    /**
+     * 级联更新,保持缓存一致性
+     * @param categoryEntity
+     */
+    @Override
+    @Transactional
+    public void updateCascadeConsistency(CategoryEntity categoryEntity) {
         // 细粒度写锁锁，保证缓存一致性
         RReadWriteLock readWriteLock = redisson.getReadWriteLock("catelogIndex-lock");
 
@@ -154,16 +187,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Override
     //如果缓存中有数据，则在查询时候不执行方法，直接从缓存中拿数据，否则将方法执行结果缓存到firstLevelCategory分组下，
     //可以指定redis中缓存的key值,key可以使用esl表达式
-    @Cacheable(value = "firstLevelCategory", key="#root.method.name")
+    @Cacheable(value = "category", key="#root.method.name")
     public List<CategoryEntity> getFirsetLevelCategory() {
         System.out.println("数据没有缓存，进来了");
         List<CategoryEntity> categoryEntities = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", CategoryLevelEnum.DEFAULT.getNumber()));
         return categoryEntities;
     }
 
+    /**
+     * 考虑了并发
+     * @return
+     */
     @Override
     // TODO springboot-data-redis默认使用的Lettuce客户端可能产生堆外内存溢出，directMemory
-    public Map<String, List<CateLogIndexVo>> getCateLogIndexJson() {
+    public Map<String, List<CateLogIndexVo>> getCateLogIndexJsonConcurrent() {
         // 1.先从缓存中查
         String catelogIndex = stringRedisTemplate.opsForValue().get("catelogIndex");
         // 如果缓存中没有，则查询数据库
@@ -175,6 +212,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         Map<String, List<CateLogIndexVo>> stringListMap = JSON.parseObject(catelogIndex, new TypeReference<Map<String, List<CateLogIndexVo>>>() {});
         return stringListMap;
     }
+
+
 
 
     /**
@@ -194,18 +233,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             String catelogIndex = stringRedisTemplate.opsForValue().get("catelogIndex");
             // 双重检查
             if (StringUtils.isEmpty(catelogIndex)) {
-                stringListMap = queryCateLogIndexFromDb();
-                // 没有就写入null值，防止溢出 TODO 处理null值
-                String redisValue = "null";
-                // 存入redis，加过期时间
-                if (stringListMap != null && !stringListMap.isEmpty()) {
-                    redisValue = JSON.toJSONString(stringListMap);
-                }
-                stringRedisTemplate.opsForValue().set("catelogIndex", redisValue, 30 * 60 , TimeUnit.SECONDS);
+                stringListMap = queryCateLogIndexFromDbManualCache();
             }else {
                 stringListMap = JSON.parseObject(catelogIndex, new TypeReference<Map<String, List<CateLogIndexVo>>>() {});
             }
-            stringRedisTemplate.execute(new DefaultRedisScript<Long>(RELEASE_LOCK_LUA_SCRIPT,Long.class),Collections.singletonList("lock"), uuid);
             return stringListMap;
         }catch(Exception e) {
             log.error("", e);
@@ -231,14 +262,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             String catelogIndex = stringRedisTemplate.opsForValue().get("catelogIndex");
             // 双重检查
             if (StringUtils.isEmpty(catelogIndex)) {
-                stringListMap = queryCateLogIndexFromDb();
-                // 没有就写入null值，防止溢出 TODO 处理null值
-                String redisValue = "null";
-                // 存入redis，加过期时间
-                if (stringListMap != null && !stringListMap.isEmpty()) {
-                    redisValue = JSON.toJSONString(stringListMap);
-                }
-                stringRedisTemplate.opsForValue().set("catelogIndex", redisValue, 30 * 60 , TimeUnit.SECONDS);
+                stringListMap = queryCateLogIndexFromDbManualCache();
             }else {
                 stringListMap = JSON.parseObject(catelogIndex, new TypeReference<Map<String, List<CateLogIndexVo>>>() {});
             }
@@ -258,8 +282,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     }
 
-
-    public Map<String, List<CateLogIndexVo>> queryCateLogIndexFromDb() {
+    /**
+     * 直接缓存，没有考虑分布式，没有考虑读写锁，没有考虑并发
+     * @return
+     */
+    @Override
+    @Cacheable(value = "category", key = "#root.method.name")
+    public Map<String, List<CateLogIndexVo>> getCateLogIndexJson() {
         System.out.println("我进来了，打我啊，傻瓜");
         // 查询出所有的记录
         List<CategoryEntity> categoryEntities = this.baseMapper.selectList(null);
@@ -299,6 +328,56 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                     return cateLogIndexVos;
 
                 }));
+        return collect;
+    }
+
+    public Map<String, List<CateLogIndexVo>> queryCateLogIndexFromDbManualCache() {
+        System.out.println("我进来了，打我啊，傻瓜");
+        // 查询出所有的记录
+        List<CategoryEntity> categoryEntities = this.baseMapper.selectList(null);
+
+        // 1. 查询一级分类
+        List<CategoryEntity> firsetLevelCategory = this.getCategoriesByParentId(categoryEntities, 0L);
+        Map<String, List<CateLogIndexVo>> collect = firsetLevelCategory
+                .stream()
+                // 将数据收集成map
+                .collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+                    // 根据一级分类查询二级分类
+                    List<CategoryEntity> secondLevel = this.getCategoriesByParentId(categoryEntities, v.getCatId());
+                    List<CateLogIndexVo> cateLogIndexVos = new ArrayList<>();
+                    if (secondLevel != null) {
+                        // 根据二级分类查询三级分类
+                        cateLogIndexVos = secondLevel.stream().map(item -> {
+                            CateLogIndexVo cateLogIndexVo = new CateLogIndexVo();
+                            cateLogIndexVo.setCatalog1Id(v.getCatId());
+                            cateLogIndexVo.setId(item.getCatId());
+                            cateLogIndexVo.setName(item.getName());
+                            List<CategoryEntity> thirdLevel =  this.getCategoriesByParentId(categoryEntities, item.getCatId());
+                            List<CateLogIndexVo.CateLog3Vo> cateLog3Vos = new ArrayList<>();
+                            if (thirdLevel != null && !thirdLevel.isEmpty()) {
+                                // 组装3级分类信息
+                                cateLog3Vos = thirdLevel.stream().map(level -> {
+                                    CateLogIndexVo.CateLog3Vo cateLog3Vo = new CateLogIndexVo.CateLog3Vo();
+                                    cateLog3Vo.setCatalog2Id(item.getCatId());
+                                    cateLog3Vo.setId(level.getCatId());
+                                    cateLog3Vo.setName(level.getName());
+                                    return cateLog3Vo;
+                                }).collect(Collectors.toList());
+                            }
+                            cateLogIndexVo.setCatalog3List(cateLog3Vos);
+                            return cateLogIndexVo;
+                        }).collect(Collectors.toList());
+                    }
+                    return cateLogIndexVos;
+
+                }));
+        // 没有就写入null值，防止溢出 TODO 处理null值
+        String redisValue = "null";
+        // 存入redis，加过期时间
+        if (collect != null && !collect.isEmpty()) {
+            redisValue = JSON.toJSONString(collect);
+        }
+        stringRedisTemplate.opsForValue().set("catelogIndex", redisValue, 30 * 60 , TimeUnit.SECONDS);
         return collect;
     }
     public List<CategoryEntity> getCategoriesByParentId(List<CategoryEntity> allCategories, Long parentId) {

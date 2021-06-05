@@ -32,6 +32,9 @@ public class IndexController {
     @GetMapping("/index/json/catalog.json")
     @ResponseBody
     public Map<String, List<CateLogIndexVo>> getCatelog() {
+
+//        Map<String, List<CateLogIndexVo>> result =  categoryService.getCateLogIndexJsonConcurrent();
+
         Map<String, List<CateLogIndexVo>> result =  categoryService.getCateLogIndexJson();
         return result;
     }

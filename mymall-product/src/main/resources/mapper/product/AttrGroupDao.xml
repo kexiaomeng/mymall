@@ -13,6 +13,23 @@
         <result property="catelogId" column="catelog_id"/>
     </resultMap>
 
+    <resultMap id="myGroupAttrVoMap" type="com.tracy.mymall.product.vo.SpuItemGroupAttrVo">
+        <result property="groupName" column="attr_group_name"></result>
+        <!--表示是一个集合-->
+        <collection property="attrs" ofType="com.tracy.mymall.product.vo.SpuItemAttrVo">
+            <result property="attrName" column="attr_name"/>
+            <result property="attrValue" column="attr_value"/>
+        </collection>
+    </resultMap>
+
+    <select id="getAttrGroupAttrBySpuId" resultMap="myGroupAttrVoMap">
+        SELECT pag.attr_group_name, pa.attr_name,ppav.attr_value
+            FROM pms_attr_group pag
+            LEFT JOIN pms_attr_attrgroup_relation paar ON paar.attr_group_id = pag.attr_group_id
+            LEFT JOIN pms_attr pa ON paar.attr_id = pa.attr_id
+            LEFT JOIN pms_product_attr_value ppav ON pa.attr_id = ppav.attr_id
+            WHERE pag.catelog_id=#{catelogId} AND ppav.spu_id=#{spuId}
+    </select>
 
 
 </mapper>

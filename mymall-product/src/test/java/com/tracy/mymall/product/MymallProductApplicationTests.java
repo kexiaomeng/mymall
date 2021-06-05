@@ -4,7 +4,9 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSClientBuilder;
 import com.tracy.mymall.product.entity.BrandEntity;
+import com.tracy.mymall.product.service.AttrGroupService;
 import com.tracy.mymall.product.service.BrandService;
+import com.tracy.mymall.product.service.SkuSaleAttrValueService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +16,8 @@ import org.springframework.data.redis.core.ValueOperations;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 @SpringBootTest
 class MymallProductApplicationTests {
@@ -25,6 +29,10 @@ class MymallProductApplicationTests {
 //    @Autowired
 //    OSSClient ossClient;
 
+    @Autowired
+    AttrGroupService attrGroupService;
+    @Autowired
+    SkuSaleAttrValueService skuSaleAttrValueService;
     @Test
     void contextLoads() {
         BrandEntity brandEntity = new BrandEntity();
@@ -34,12 +42,21 @@ class MymallProductApplicationTests {
         brandService.save(brandEntity);
     }
 
+
+    @Test
+    public void testAttr() {
+        System.out.println(attrGroupService.getAttrGroupAttrBySpuId(13, 225));;
+        System.out.println(skuSaleAttrValueService.getAllSkuSaleAttrBySpuId(13));
+    }
+
+
     @Test
     public void testRedis() {
         ValueOperations<String, String> stringStringValueOperations = stringRedisTemplate.opsForValue();
         stringStringValueOperations.set("hello", "world");
 
         System.out.println(stringStringValueOperations.get("hello"));
+
     }
     @Test
     public void testOss() throws FileNotFoundException {

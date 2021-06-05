@@ -3,6 +3,8 @@ package com.tracy.mymall.product.dao;
 import com.tracy.mymall.product.entity.AttrAttrgroupRelationEntity;
 import com.tracy.mymall.product.entity.AttrGroupEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.tracy.mymall.product.vo.SkuItemVo;
+import com.tracy.mymall.product.vo.SpuItemGroupAttrVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,4 +20,5 @@ import java.util.List;
 @Mapper
 public interface AttrGroupDao extends BaseMapper<AttrGroupEntity> {
 
+    List<SpuItemGroupAttrVo> getAttrGroupAttrBySpuId(@Param("spuId") long spuId, @Param("catelogId") long catelogId);
 }

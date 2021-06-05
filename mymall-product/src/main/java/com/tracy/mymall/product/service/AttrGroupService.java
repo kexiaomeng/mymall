@@ -6,6 +6,8 @@ import com.tracy.mymall.product.entity.AttrEntity;
 import com.tracy.mymall.product.entity.AttrGroupEntity;
 import com.tracy.mymall.product.vo.AttrAttrgroupVo;
 import com.tracy.mymall.product.vo.AttrGroupAttrRespVo;
+import com.tracy.mymall.product.vo.SkuItemVo;
+import com.tracy.mymall.product.vo.SpuItemGroupAttrVo;
 
 import java.util.List;
 import java.util.Map;
@@ -32,5 +34,7 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     void addRelation(List<AttrAttrgroupVo> attrAttrgroupVos);
 
     List<AttrGroupAttrRespVo> getAttrGroupAttrByCatelogId(Long catelogId);
+
+    List<SpuItemGroupAttrVo> getAttrGroupAttrBySpuId(long spuId, long catelogId);
 }
 
