@@ -22,6 +22,7 @@
         <module>mymall-common</module>
         <module>mymall-thirdpart</module>
         <module>mymall-search</module>
+        <module>mymall-auth-server</module>
     </modules>
 
     <!-- 统一管理jar包版本 -->

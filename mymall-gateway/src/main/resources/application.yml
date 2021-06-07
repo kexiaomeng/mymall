@@ -64,10 +64,14 @@ spring:
           predicates:
             - Host=mymall.com, item.mymall.com
         # nginx反向代理访问mymall.com:1111后转向的地址
-        - id: mymall_nginx_route
+        - id: mymall_search_route
           uri: lb://mymall-search
           predicates:
             - Host=search.mymall.com
+        - id: mymall-auth-server_route
+          uri: lb://mymall-auth-server
+          predicates:
+          - Host=auth.mymall.com
 
 
     nacos:

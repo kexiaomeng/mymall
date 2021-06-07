@@ -1,0 +1,12 @@
+server:
+  port: 9509
+
+spring:
+  application:
+    name: mymall-auth-server
+  thymeleaf:
+    cache: false
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:3333
