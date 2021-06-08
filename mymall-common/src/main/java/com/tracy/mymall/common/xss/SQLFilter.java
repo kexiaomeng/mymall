@@ -22,7 +22,7 @@ public class SQLFilter {
      * SQL注入过滤
      * @param str  待验证的字符串
      */
-    public static String sqlInject(String str){
+    public static String sqlInject(String str) throws RRException {
         if(StringUtils.isBlank(str)){
             return null;
         }

@@ -33,15 +33,15 @@ public class SmsSenderComponent {
     }
 
 
-    public void sendSms(String phoneNumber) throws Exception {
+    public void sendSms(String phoneNumber, String code) throws Exception {
 //        SendSmsRequest sendSmsRequest = new SendSmsRequest()
 //                .setPhoneNumbers(phoneNumber)
 //                .setSignName(signName)
 //                .setTemplateCode(modelId)
 //                .setTemplateParam("{\"code\":\"1234\"}");
-//        client().sendSms(sendSmsRequest)
-        // 复制代码运行请自行打印 API 的返回值
+//        client().sendSms(sendSmsRequest);
+//        // 复制代码运行请自行打印 API 的返回值
 
-        System.out.println(client().toString());
+        System.out.println(client().toString()+"手机号"+phoneNumber+",发送code："+code);
     }
 }

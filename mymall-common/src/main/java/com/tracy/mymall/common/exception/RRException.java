@@ -13,7 +13,7 @@ package com.tracy.mymall.common.exception;
  *
  * @author Mark sunlightcs@gmail.com
  */
-public class RRException extends RuntimeException {
+public class RRException extends Exception {
 	private static final long serialVersionUID = 1L;
 	
     private String msg;
@@ -30,6 +30,11 @@ public class RRException extends RuntimeException {
 	}
 	
 	public RRException(String msg, int code) {
+		super(msg);
+		this.msg = msg;
+		this.code = code;
+	}
+	public RRException(int code, String msg) {
 		super(msg);
 		this.msg = msg;
 		this.code = code;

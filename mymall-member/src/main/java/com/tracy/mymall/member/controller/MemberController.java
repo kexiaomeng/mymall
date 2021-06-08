@@ -3,15 +3,13 @@ package com.tracy.mymall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.tracy.mymall.common.exception.RRException;
+import com.tracy.mymall.member.dto.UserRegisterDto;
 import com.tracy.mymall.member.feign.RemoteCouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tracy.mymall.member.entity.MemberEntity;
 import com.tracy.mymall.member.service.MemberService;
@@ -92,6 +90,13 @@ public class MemberController {
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] ids){
 		memberService.removeByIds(Arrays.asList(ids));
+
+        return R.ok();
+    }
+
+    @PostMapping("/register")
+    public R register(@RequestBody UserRegisterDto userRegisterDto) throws RRException {
+        memberService.register(userRegisterDto);
 
         return R.ok();
     }

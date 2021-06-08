@@ -11,6 +11,7 @@ package com.tracy.mymall.common.utils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tracy.mymall.common.exception.RRException;
 import com.tracy.mymall.common.xss.SQLFilter;
 import org.apache.commons.lang.StringUtils;
 
@@ -47,7 +48,12 @@ public class Query<T> {
 
         //排序字段
         //防止SQL注入（因为sidx、order是通过拼接SQL实现排序的，会有SQL注入风险）
-        String orderField = SQLFilter.sqlInject((String)params.get(Constant.ORDER_FIELD));
+        String orderField = null;
+        try {
+            orderField = SQLFilter.sqlInject((String)params.get(Constant.ORDER_FIELD));
+        } catch (RRException e) {
+            e.printStackTrace();
+        }
         String order = (String)params.get(Constant.ORDER);
 
 

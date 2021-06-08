@@ -36,7 +36,7 @@ class MymallThirdpartApplicationTests {
 
     @Test
     public void sms() throws Exception {
-        smsSenderComponent.sendSms("18251980272");
+        smsSenderComponent.sendSms("18251980272","AA");
     }
 
     @Test
