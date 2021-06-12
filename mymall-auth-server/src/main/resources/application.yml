@@ -13,3 +13,8 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6382
+  session:
+    redis:
+      namespace: spring:session
+    store-type: redis
+    timeout: 30m

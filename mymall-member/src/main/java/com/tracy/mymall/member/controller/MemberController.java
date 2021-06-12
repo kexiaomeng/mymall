@@ -3,9 +3,14 @@ package com.tracy.mymall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.tracy.mymall.common.exception.ExceptionEnum;
 import com.tracy.mymall.common.exception.RRException;
+import com.tracy.mymall.member.dto.MemberLoginDto;
+import com.tracy.mymall.member.dto.SocialUserVo;
 import com.tracy.mymall.member.dto.UserRegisterDto;
 import com.tracy.mymall.member.feign.RemoteCouponService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -28,6 +33,7 @@ import com.tracy.mymall.common.utils.R;
 @RestController
 @RequestMapping("member/member")
 @RefreshScope
+@Slf4j
 public class MemberController {
     @Autowired
     private MemberService memberService;
@@ -99,6 +105,31 @@ public class MemberController {
         memberService.register(userRegisterDto);
 
         return R.ok();
+    }
+
+    @PostMapping("/login")
+    public R login(@RequestBody MemberLoginDto memberLoginDto)  {
+        MemberEntity memberEntity = memberService.login(memberLoginDto);
+        if (memberEntity == null) {
+            return R.error(ExceptionEnum.MEMBER_LOGIN_ERROR.getErrorCode(), ExceptionEnum.MEMBER_LOGIN_ERROR.getDesc());
+        }
+        return R.ok().put("msg", JSON.toJSONString(memberEntity));
+    }
+
+    @PostMapping("/social/login")
+    public R socialLogin(@RequestBody SocialUserVo socialUserVo)  {
+        try {
+            MemberEntity memberEntity = memberService.socialLogin(socialUserVo);
+            if (memberEntity == null) {
+                return R.error(ExceptionEnum.MEMBER_LOGIN_ERROR.getErrorCode(), ExceptionEnum.MEMBER_LOGIN_ERROR.getDesc());
+            }
+            return R.ok().put("msg", JSON.toJSONString(memberEntity));
+
+        }catch(Exception e) {
+            log.error("", e);
+            return R.error(ExceptionEnum.MEMBER_LOGIN_ERROR.getErrorCode(), ExceptionEnum.MEMBER_LOGIN_ERROR.getDesc());
+        }
+
     }
 
 }

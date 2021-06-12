@@ -3,6 +3,8 @@ package com.tracy.mymall.member.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracy.mymall.common.exception.RRException;
 import com.tracy.mymall.common.utils.PageUtils;
+import com.tracy.mymall.member.dto.MemberLoginDto;
+import com.tracy.mymall.member.dto.SocialUserVo;
 import com.tracy.mymall.member.dto.UserRegisterDto;
 import com.tracy.mymall.member.entity.MemberEntity;
 import com.tracy.mymall.member.exception.PhoneExistException;
@@ -24,5 +26,9 @@ public interface MemberService extends IService<MemberEntity> {
     void register(UserRegisterDto userRegisterDto) throws RRException;
     void checkUniqueUserName(String userName) throws UserExistException;
     void checkUniquePhone(String phone) throws PhoneExistException;
+
+    MemberEntity login(MemberLoginDto memberLoginDto);
+
+    MemberEntity socialLogin(SocialUserVo socialUserVo);
 }
 

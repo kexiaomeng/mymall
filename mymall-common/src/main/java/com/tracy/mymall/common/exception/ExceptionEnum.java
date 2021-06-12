@@ -19,7 +19,8 @@ public enum  ExceptionEnum {
     SMS_CODE_GET_FREQUENTLY(19002,"获取验证码太频繁,请稍后再试"),
     SMS_CODE_VERIFY_FAILED(19003,"验证码验证失败"),
     MEMBER_USERNAME_EXIST(12001, "用户名已存在"),
-    MEMBER_PHONE_EXIST(12002,"手机号已存在");
+    MEMBER_PHONE_EXIST(12002,"手机号已存在"),
+    MEMBER_LOGIN_ERROR(12003,"用户名或密码错误");
 
     private int errorCode;
     private String desc;

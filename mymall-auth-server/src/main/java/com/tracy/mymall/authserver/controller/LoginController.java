@@ -1,11 +1,15 @@
 package com.tracy.mymall.authserver.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.tracy.mymall.authserver.feign.MyMallMemberFeignService;
 import com.tracy.mymall.authserver.feign.ThirdpartFeignService;
+import com.tracy.mymall.authserver.vo.LoginVo;
 import com.tracy.mymall.authserver.vo.UserRegisterVo;
 import com.tracy.mymall.common.constant.AuthConst;
 import com.tracy.mymall.common.exception.ExceptionEnum;
 import com.tracy.mymall.common.utils.R;
+import com.tracy.mymall.common.vo.MemberEntityVo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,8 +18,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
+@Slf4j
 public class LoginController {
 // 可以用视图解析器的方式实现只返回视图名的页面
 //    @GetMapping("/login.html")
@@ -65,7 +72,6 @@ public class LoginController {
     }
 
     // TODO redirect重定向是使用session来共享数据的，需要解决分布式session问题,redirectAttributes可以模拟重定向携带数据
-
     /**
      *
      * @param userRegisterVo
@@ -117,5 +123,23 @@ public class LoginController {
         redirectAttributes.addFlashAttribute("errors", errors);
         return "redirect:http://auth.mymall.com:1111/reg.html";
 
+    }
+
+    @PostMapping("/loginn")
+    public String login(LoginVo loginVo, RedirectAttributes redirectAttributes, HttpSession session) {
+        R login = myMallMemberFeignService.login(loginVo);
+        if (login.getCode() != 0) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("msg", (String) login.get("msg"));
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.mymall.com:1111/login.html";
+
+        }
+        String msg = (String) login.get("msg");
+        MemberEntityVo memberEntityVo = JSON.parseObject(msg, MemberEntityVo.class);
+        log.info("\n欢迎 [" + memberEntityVo.getUsername() + "] 使用账号登录");
+        session.setAttribute("loginUser", memberEntityVo);
+
+        return "redirect:http://mymall.com:1111";
     }
 }
