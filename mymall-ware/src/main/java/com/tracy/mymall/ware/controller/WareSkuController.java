@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.tracy.mymall.common.dto.SkuHasStockDto;
+import com.tracy.mymall.common.exception.ExceptionEnum;
+import com.tracy.mymall.common.vo.WareLockVo;
+import com.tracy.mymall.ware.exception.NoStockException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +28,24 @@ import com.tracy.mymall.common.utils.R;
  */
 @RestController
 @RequestMapping("ware/waresku")
+@Slf4j
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+    /**
+     * 订单锁库存
+     */
+    @PostMapping("/lockStock")
+    public R lockStock(@RequestBody WareLockVo wareLockVo) {
+        try {
+            boolean lockStock = wareSkuService.lockStock(wareLockVo);
+            return R.ok();
+        }catch(NoStockException e) {
+            log.error("", e);
+            return R.error(ExceptionEnum.NO_STOCK_EXCEPTION.getErrorCode(), ExceptionEnum.NO_STOCK_EXCEPTION.getDesc());
+        }
+
+    }
     /**
      * 查询商品是否有库存
      */

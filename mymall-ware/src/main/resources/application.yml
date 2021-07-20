@@ -12,6 +12,13 @@ spring:
   application:
     name: mymall-ware
   datasource:
+    # 手动注入的datgasource，给seata使用
+    type: com.alibaba.druid.pool.DruidDataSource      #当前数据源操作类型
+    driver-class-name: org.gjt.mm.mysql.Driver        #mysql驱动包
+    url: jdbc:mysql://localhost:3306/mymall_wms?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: root
+#DRUID自动注入的datasource
     druid:
       driver-class-name: com.mysql.jdbc.Driver
       password: root
@@ -60,10 +67,27 @@ spring:
           log-slow-sql: true
       jpa:
         show-sql: true
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: mymall-ware
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      ack-mode: manual
   cloud:
     nacos:
       discovery:
         server-addr: 127.0.0.1:3333
+    alibaba:
+      seata:
+        # 自定义事务组名称需要与seata-server中的对应
+        tx-service-group: my_test_tx_group
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
 

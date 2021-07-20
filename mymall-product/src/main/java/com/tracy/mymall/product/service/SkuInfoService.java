@@ -3,6 +3,7 @@ package com.tracy.mymall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.product.entity.SkuInfoEntity;
+import com.tracy.mymall.product.entity.SpuInfoEntity;
 import com.tracy.mymall.product.vo.SkuItemVo;
 
 import java.util.List;
@@ -28,5 +29,6 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
 
     SkuItemVo getSkuItem(Long skuId);
 
+    SpuInfoEntity getSpuBySkuId(Long skuId);
 }
 

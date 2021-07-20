@@ -10,6 +10,7 @@ public enum  ExceptionEnum {
      * 11：商品
      * 12:会员
      * 19：认证服务
+     * 20: 库存服务
      */
     UNKNOW_EXCEPTION(10000, "全局未知异常"),
     UNKNOW_PRODUCT_EXCEPTION(11000, "商品服务未知异常"),
@@ -20,8 +21,8 @@ public enum  ExceptionEnum {
     SMS_CODE_VERIFY_FAILED(19003,"验证码验证失败"),
     MEMBER_USERNAME_EXIST(12001, "用户名已存在"),
     MEMBER_PHONE_EXIST(12002,"手机号已存在"),
-    MEMBER_LOGIN_ERROR(12003,"用户名或密码错误");
-
+    MEMBER_LOGIN_ERROR(12003,"用户名或密码错误"),
+    NO_STOCK_EXCEPTION(20001, "商品库存不足") ;
     private int errorCode;
     private String desc;
 

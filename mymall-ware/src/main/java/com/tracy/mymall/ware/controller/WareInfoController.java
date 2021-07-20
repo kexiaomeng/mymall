@@ -1,8 +1,15 @@
 package com.tracy.mymall.ware.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.tracy.mymall.ware.feign.MyMallMemberFeignService;
+import com.tracy.mymall.ware.vo.FareVo;
+import com.tracy.mymall.ware.vo.MemberReceiveAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +34,8 @@ import com.tracy.mymall.common.utils.R;
 @RestController
 @RequestMapping("ware/wareinfo")
 public class WareInfoController {
+    @Autowired
+    private MyMallMemberFeignService myMallMemberFeignService;
     @Autowired
     private WareInfoService wareInfoService;
 
@@ -80,6 +89,28 @@ public class WareInfoController {
 		wareInfoService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+    /**
+     * 查运费
+     */
+    @RequestMapping("/fare/{addressId}")
+    public R fare(@PathVariable("addressId") Long addressId){
+        R info = myMallMemberFeignService.info(addressId);
+        FareVo fareVo = new FareVo();
+        if (info.getCode() == 0) {
+            Object memberReceiveAddress = info.get("memberReceiveAddress");
+            String string = JSON.toJSONString(memberReceiveAddress);
+            MemberReceiveAddress address = JSON.parseObject(string, new TypeReference<MemberReceiveAddress>(){});
+            fareVo.setAddress(address);
+            fareVo.setPayPrice(new BigDecimal("20"));
+            // TODO 处理运费信息
+        }else {
+            fareVo.setPayPrice(new BigDecimal("20"));
+
+        }
+        return R.ok().put("data",fareVo);
+
     }
 
 }

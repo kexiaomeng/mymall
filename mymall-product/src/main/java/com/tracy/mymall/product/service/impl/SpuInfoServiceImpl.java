@@ -265,7 +265,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         try {
             R r = wareFeignService.hasStock(skuIds);
             String json = JSON.toJSONString(r.get("data"));
-            List<SkuHasStockDto> skuHasStockDtos = JSON.parseObject(json, new TypeReference< ArrayList<SkuHasStockDto>>(){});
+            List<SkuHasStockDto> skuHasStockDtos = JSON.parseObject(json, new TypeReference<ArrayList<SkuHasStockDto>>(){});
             // 将结果转换成map
             hasStockMap = skuHasStockDtos.stream().collect(Collectors.toMap(SkuHasStockDto::getSkuId, SkuHasStockDto::getHasStock));
         }catch (Exception e) {

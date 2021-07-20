@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.tracy.mymall.authserver.feign.MyMallMemberFeignService;
 import com.tracy.mymall.authserver.vo.SocialAuthAccessKayObject;
 import com.tracy.mymall.authserver.vo.SocialRespVo;
+import com.tracy.mymall.common.constant.AuthConst;
 import com.tracy.mymall.common.utils.R;
 import com.tracy.mymall.common.vo.MemberEntityVo;
 import lombok.extern.slf4j.Slf4j;
@@ -63,12 +64,12 @@ public class Oauth2Controller {
 //                log.info("\n欢迎 [" + rsepVo.getUsername() + "] 使用社交账号登录");
 //                // 第一次使用session 命令浏览器保存这个用户信息 JESSIONSEID 每次只要访问这个网站就会带上这个cookie
 //                // 在发卡的时候扩大session作用域 (指定域名为父域名)
-                // TODO 1.默认发的当前域的session (需要解决子域session共享问题)
+                // TODO 1.默认发的当前域的session (需要解决子域session共享问题),使用springsession解决
                 // TODO 2.使用JSON的方式序列化到redis
 //                				new Cookie("JSESSIONID","").setDomain("gulimall.com");
 //                session.setAttribute(AuthServerConstant.LOGIN_USER, rsepVo);
 
-                session.setAttribute("loginUser", memberEntityVo);
+                session.setAttribute(AuthConst.LOGIN_USER, memberEntityVo);
                 return "redirect:http://mymall.com:1111";
             }else {
                 return "redirect:http://auth.mymall.com:1111/login.html";

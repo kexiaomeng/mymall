@@ -35,5 +35,8 @@
         WHERE psi.spu_id=#{spuId}
         GROUP BY pssav.attr_id, pssav.attr_name, pssav.attr_value;
     </select>
+    <select id="getSkuSaleAttrStringBySkuId" resultType="java.lang.String">
+        SELECT CONCAT(P.ATTR_NAME, ":", P.ATTR_VALUE) FROM PMS_SKU_SALE_ATTR_VALUE P WHERE P.SKU_ID=#{skuId};
+    </select>
 
 </mapper>

@@ -33,6 +33,12 @@
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
                 </exclusion>
+
+                    <exclusion>
+                        <groupId>org.springframework.session</groupId>
+                        <artifactId>spring-session-data-redis</artifactId>
+                    </exclusion>
+
             </exclusions>
         </dependency>
         <!--阿里云上传-->

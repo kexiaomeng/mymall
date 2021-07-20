@@ -1,6 +1,7 @@
 package com.tracy.mymall.member.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,17 @@ public class MemberReceiveAddressController {
 		memberReceiveAddressService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+
+    /**
+     * 获取指定用户的地址
+     */
+    @RequestMapping("/{memberid}/address")
+    public List<MemberReceiveAddressEntity> getMemberAddress(@PathVariable("memberid") Long memberid){
+        List<MemberReceiveAddressEntity> memberReceiveAddress = memberReceiveAddressService.getByMemberId(memberid);
+
+        return memberReceiveAddress;
     }
 
 }

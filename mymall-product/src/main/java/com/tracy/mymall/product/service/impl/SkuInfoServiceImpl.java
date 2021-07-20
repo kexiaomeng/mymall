@@ -2,6 +2,7 @@ package com.tracy.mymall.product.service.impl;
 
 import com.tracy.mymall.product.entity.SkuImagesEntity;
 import com.tracy.mymall.product.entity.SpuInfoDescEntity;
+import com.tracy.mymall.product.entity.SpuInfoEntity;
 import com.tracy.mymall.product.service.*;
 import com.tracy.mymall.product.vo.SkuItemAttrVo;
 import com.tracy.mymall.product.vo.SkuItemVo;
@@ -43,6 +44,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     private SkuSaleAttrValueService skuSaleAttrValueService;
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
+
+    @Autowired
+    private SpuInfoService spuInfoService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuInfoEntity> page = this.page(
@@ -119,7 +123,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
 
         CompletableFuture<Void> skuSaleAttrFuture = infoFuture.thenAcceptAsync(skuinfo -> {
-            // 2. 查询sku销售属性,当前sku对应的spu下的所有sku的销售属性
+            // 2. 查询sku销售属性,当前sku对应的spu下的所有sku的销售属性，用来页面切换
             List<SkuItemAttrVo> skuItemAttrVos = skuSaleAttrValueService.getAllSkuSaleAttrBySpuId(skuinfo.getSpuId());
 
             skuItemVo.setSaleAttr(skuItemAttrVos);
@@ -157,6 +161,14 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
 
         return skuItemVo;
+    }
+
+    @Override
+    public SpuInfoEntity getSpuBySkuId(Long skuId) {
+        SkuInfoEntity byId = this.getById(skuId);
+        Long spuId = byId.getSpuId();
+        SpuInfoEntity spuInfoEntity = spuInfoService.getById(spuId);
+        return spuInfoEntity;
     }
 
 

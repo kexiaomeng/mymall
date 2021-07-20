@@ -3,6 +3,7 @@ package com.tracy.mymall.ware.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tracy.mymall.common.dto.SkuHasStockDto;
 import com.tracy.mymall.common.utils.PageUtils;
+import com.tracy.mymall.common.vo.WareLockVo;
 import com.tracy.mymall.ware.entity.WareSkuEntity;
 
 import java.util.List;
@@ -22,5 +23,9 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     void addStock(Long skuId, Long wareId, Integer skuNum);
 
     List<SkuHasStockDto> hasStock(List<Long> skuIds);
+
+    boolean lockStock(WareLockVo wareLockVo);
+
+    void unlockStock(Long skuId, Integer skuNum, Long wareId, Long detailId);
 }
 

@@ -8,15 +8,19 @@
 
 package com.tracy.mymall.common.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.HttpStatus;
 
+import java.sql.Blob;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 返回数据
+ * 返回数据，如果put("info",Object)传输对象，则被转换为了map传输，在接收时需要使用JSON.parse(json.toJsonString(r.get("info")), new TypeReference)的方式处理
  *
  * @author Mark sunlightcs@gmail.com
  */
@@ -58,6 +62,13 @@ public class R extends HashMap<String, Object> {
 		return new R();
 	}
 
+	public <T> T get(TypeReference<T> typeReference) {
+        Object data = this.get("data");
+        String string = JSON.toJSONString(data);
+		T object = JSON.parseObject(string, typeReference);
+		return object;
+
+	}
 	@Override
 	public R put(String key, Object value) {
 		super.put(key, value);

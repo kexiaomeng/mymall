@@ -71,7 +71,15 @@ spring:
         - id: mymall-auth-server_route
           uri: lb://mymall-auth-server
           predicates:
-          - Host=auth.mymall.com
+            - Host=auth.mymall.com
+        - id: mymall-cart_route
+          uri: lb://mymall-cart
+          predicates:
+            - Host=cart.mymall.com
+        - id: mymall-order-route
+          uri: lb://mymall-order
+          predicates:
+            - Host=order.mymall.com
 
 
     nacos:

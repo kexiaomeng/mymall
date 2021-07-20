@@ -3,6 +3,7 @@ package com.tracy.mymall.product.app;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.tracy.mymall.product.entity.SpuInfoEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,16 @@ import com.tracy.mymall.common.utils.R;
 public class SkuInfoController {
     @Autowired
     private SkuInfoService skuInfoService;
+
+    /**
+     * 信息
+     */
+    @RequestMapping("/spuinfoBySku/{skuId}")
+    public R spuinfoBysku(@PathVariable("skuId") Long skuId){
+        SpuInfoEntity spuInfo = skuInfoService.getSpuBySkuId(skuId);
+
+        return R.ok().put("data", spuInfo);
+    }
 
     /**
      * 列表

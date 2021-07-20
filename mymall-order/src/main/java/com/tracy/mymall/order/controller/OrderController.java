@@ -3,6 +3,7 @@ package com.tracy.mymall.order.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,18 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    /**
+     * 列表
+     */
+    @RequestMapping("/query/{orderSn}")
+    public R queryOrderByOrderSn(@PathVariable("orderSn") String orderSn){
+
+        OrderEntity orderEntity = orderService.getOrderBySn(orderSn);
+        if (orderEntity == null) {
+           return R.error(600, "订单不存在");
+        }
+        return R.ok().put("data", JSONObject.toJSONString(orderEntity));
+    }
     /**
      * 列表
      */
