@@ -2,15 +2,18 @@ package com.tracy.mymall.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.tracy.mymall.common.constant.OrderConst;
 import com.tracy.mymall.common.dto.SkuHasStockDto;
+import com.tracy.mymall.common.dto.mq.QuickOrderDto;
 import com.tracy.mymall.common.enums.OrderStatusEnum;
 import com.tracy.mymall.common.utils.R;
 import com.tracy.mymall.common.vo.MemberEntityVo;
 import com.tracy.mymall.common.vo.WareLockVo;
 import com.tracy.mymall.order.configuration.AliPayTemplate;
 import com.tracy.mymall.order.entity.OrderItemEntity;
+import com.tracy.mymall.order.entity.PaymentInfoEntity;
 import com.tracy.mymall.order.feign.MyMallCartFeignService;
 import com.tracy.mymall.order.feign.MyMallMemberFeignService;
 import com.tracy.mymall.order.feign.MyMallProductFeignService;
@@ -19,6 +22,7 @@ import com.tracy.mymall.order.inteceptor.OrderInteceptor;
 import com.tracy.mymall.order.kafka.KafkaConsumer;
 import com.tracy.mymall.order.kafka.KafkaProducer;
 import com.tracy.mymall.order.service.OrderItemService;
+import com.tracy.mymall.order.service.PaymentInfoService;
 import com.tracy.mymall.order.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -77,6 +81,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private AliPayTemplate aliPayTemplate;
+
+    @Autowired
+    private PaymentInfoService paymentInfoService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<OrderEntity> page = this.page(
@@ -250,6 +257,71 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         payVo.setBody(orderBySn.getMemberUsername());
 
         return aliPayTemplate.pay(payVo);
+    }
+
+    @Override
+    public String handlePayResult(PayAsyncVo payAsyncVo) {
+        // 插入付款记录表
+
+        PaymentInfoEntity paymentInfoEntity = new PaymentInfoEntity();
+
+        paymentInfoEntity.setAlipayTradeNo(payAsyncVo.getTrade_no());
+        paymentInfoEntity.setOrderSn(payAsyncVo.getOut_trade_no());
+        paymentInfoEntity.setPaymentStatus(payAsyncVo.getTrade_status());
+        paymentInfoEntity.setTotalAmount(new BigDecimal(payAsyncVo.getTotal_amount()));
+        paymentInfoEntity.setSubject(payAsyncVo.getSubject());
+        paymentInfoEntity.setCallbackTime(payAsyncVo.getNotify_time());
+        paymentInfoEntity.setCreateTime(payAsyncVo.getGmt_create());
+        paymentInfoService.save(paymentInfoEntity);
+
+
+
+        // 更新订单状态
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderSn(payAsyncVo.getOut_trade_no());
+        orderEntity.setStatus(OrderStatusEnum.PAYED.getCode());
+
+        // 2.修改订单状态信息
+        if(payAsyncVo.getTrade_status().equals("TRADE_SUCCESS") || payAsyncVo.getTrade_status().equals("TRADE_FINISHED")){
+            // 支付成功
+            String orderSn = payAsyncVo.getOut_trade_no();
+            this.update(orderEntity, new UpdateWrapper<OrderEntity>().eq("order_sn", orderSn));
+        }
+        return "success";
+
+    }
+
+    /**
+     * 创建秒杀订单
+     * @param quickOrderDto
+     */
+    @Override
+    public void createSeckillOrder(QuickOrderDto quickOrderDto) {
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderSn(quickOrderDto.getOrderSn());
+        orderEntity.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        orderEntity.setTotalAmount(quickOrderDto.getSeckillPrice().multiply(new BigDecimal(quickOrderDto.getNum().toString())));
+        orderEntity.setPayAmount(quickOrderDto.getSeckillPrice().multiply(new BigDecimal(quickOrderDto.getNum().toString())));
+
+        orderEntity.setMemberId(quickOrderDto.getMemberId());
+        orderEntity.setCreateTime(new Date());
+        orderEntity.setPayType(1);
+        this.save(orderEntity);
+        // 生成订单明细，只有一个而商品
+        OrderItemEntity itemEntity = new OrderItemEntity();
+        itemEntity.setOrderSn(quickOrderDto.getOrderSn());
+        itemEntity.setSkuId(quickOrderDto.getSkuId());
+        itemEntity.setSkuPrice(quickOrderDto.getSeckillPrice());
+        itemEntity.setSkuQuantity(quickOrderDto.getNum());
+        itemEntity.setRealAmount(quickOrderDto.getSeckillPrice().multiply(new BigDecimal(quickOrderDto.getNum().toString())));
+        R info = myMallProductFeignService.spuinfoBysku(quickOrderDto.getSkuId());
+        SpuVo spuInfo = info.get(new TypeReference<SpuVo>() {});
+        itemEntity.setSpuId(spuInfo.getId());
+        itemEntity.setSpuBrand(spuInfo.getBrandId().toString());
+        itemEntity.setSpuName(spuInfo.getSpuName());
+        itemEntity.setCategoryId(spuInfo.getCatalogId());
+
+        orderItemService.save(itemEntity);
     }
 
     private void saveOrder(OrderTo orderTo) {

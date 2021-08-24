@@ -33,8 +33,9 @@ public class SkuItemVo {
     //2、sku的图片信息    pms_sku_images
     private List<SkuImagesEntity> images;
 
-    private Object seckillSkuVo = null;
     private Boolean hasStock = true;
+
+    private SeckillSkuRedisTo seckillSkuVo = null;
 
 
 

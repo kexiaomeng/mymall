@@ -589,12 +589,13 @@
   }
 
   $.get("http://seckill.mymall.com:1111/getCurrentSeckillSkus", function (res) {
+      console.log(res)
     if (res.data.length > 0) {
       res.data.forEach(function (item) {
-        $("<li onclick='toDetail(" + item.skuId + ")'></li>").append($("<img style='width: 130px; height: 130px' src='" + item.skuInfo.skuDefaultImg + "' />"))
-                .append($("<p>"+item.skuInfo.skuTitle+"</p>"))
+        $("<li onclick='toDetail(" + item.skuId + ")'></li>").append($("<img style='width: 130px; height: 130px' src='" + item.skuInfoVo.skuDefaultImg + "' />"))
+                .append($("<p>"+item.skuInfoVo.skuTitle+"</p>"))
                 .append($("<span>" + item.seckillPrice + "</span>"))
-                .append($("<s>" + item.skuInfo.price + "</s>"))
+                .append($("<s>" + item.skuInfoVo.price + "</s>"))
                 .appendTo("#seckillSkuContent");
       })
     }

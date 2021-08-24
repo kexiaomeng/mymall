@@ -1,11 +1,13 @@
 package com.tracy.mymall.order.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tracy.mymall.common.dto.mq.QuickOrderDto;
 import com.tracy.mymall.common.utils.PageUtils;
 import com.tracy.mymall.order.entity.OrderEntity;
 import com.tracy.mymall.order.vo.OrderConfirmVo;
 import com.tracy.mymall.order.vo.OrderSubmitRespVo;
 import com.tracy.mymall.order.vo.OrderSubmitVo;
+import com.tracy.mymall.order.vo.PayAsyncVo;
 
 import java.util.Map;
 
@@ -27,5 +29,9 @@ public interface OrderService extends IService<OrderEntity> {
     OrderEntity getOrderBySn(String orderSn);
 
     String payOrder(String orderSn);
+
+    String handlePayResult(PayAsyncVo payAsyncVo);
+
+    void createSeckillOrder(QuickOrderDto quickOrderDto);
 }
 

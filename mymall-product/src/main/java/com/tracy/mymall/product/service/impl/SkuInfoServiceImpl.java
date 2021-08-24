@@ -1,9 +1,13 @@
 package com.tracy.mymall.product.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
+import com.tracy.mymall.common.utils.R;
 import com.tracy.mymall.product.entity.SkuImagesEntity;
 import com.tracy.mymall.product.entity.SpuInfoDescEntity;
 import com.tracy.mymall.product.entity.SpuInfoEntity;
+import com.tracy.mymall.product.feign.MymallSeckillFeignService;
 import com.tracy.mymall.product.service.*;
+import com.tracy.mymall.product.vo.SeckillSkuRedisTo;
 import com.tracy.mymall.product.vo.SkuItemAttrVo;
 import com.tracy.mymall.product.vo.SkuItemVo;
 import com.tracy.mymall.product.vo.SpuItemGroupAttrVo;
@@ -47,6 +51,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Autowired
     private SpuInfoService spuInfoService;
+    @Autowired
+    private MymallSeckillFeignService seckillFeignService;
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuInfoEntity> page = this.page(
@@ -149,10 +155,19 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             skuItemVo.setImages(skuImagesEntities);
         }, threadPoolExecutor);
 
+        // 获取商品的秒杀信息
+        CompletableFuture<Void> seckillFuture = CompletableFuture.runAsync(() -> {
+            R msg = seckillFeignService.getSkuSecondkillMsg(skuId);
+            if (msg.getCode() == 0) {
+                SeckillSkuRedisTo seckillSkuRedisTo = msg.get(new TypeReference<SeckillSkuRedisTo>() {
+                });
+                skuItemVo.setSeckillSkuVo(seckillSkuRedisTo);
+            }
+        }, threadPoolExecutor);
 
         // 等待所有任务完成
         try {
-            CompletableFuture.allOf(imgFuture, spuAttrFuture, descFuture, skuSaleAttrFuture).get();
+            CompletableFuture.allOf(imgFuture, spuAttrFuture, descFuture, skuSaleAttrFuture, seckillFuture).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

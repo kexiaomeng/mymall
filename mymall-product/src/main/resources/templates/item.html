@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>商品详情页</title>
     <link rel="stylesheet" type="text/css" href="/static/item/scss/shop.css"/>
-    <link rel="stylesheet" type="text/css" href="/static/item/scss/jd.css"/>
     <link rel="stylesheet" href="/static/item/scss/header.css"/>
     <link rel="stylesheet" type="text/css" href="/static/item/bootstrap/css/bootstrap.css"/>
 </head>
@@ -687,8 +686,8 @@
 
                     <div class="box-btns-two"
                          th:if="${item.seckillSkuVo != null && (#dates.createNow().getTime() >= item.seckillSkuVo.startTime && #dates.createNow().getTime() <= item.seckillSkuVo.endTime)}">
-                        <a class="seckill" href="#"
-                           th:attr="skuId=${item.info.skuId},sessionId=${item.seckillSkuVo.promotionSessionId},code=${item.seckillSkuVo.randomCode}">
+                        <a class="seckill"
+                           th:attr="skuId=${item.seckillSkuVo.id},sessionId=${item.seckillSkuVo.promotionSessionId},code=${item.seckillSkuVo.randomCode}">
                             立即抢购
                         </a>
                     </div>
@@ -1398,9 +1397,10 @@
     });
 
     $(".seckill").click(function () {
+        console.log("抢购aaa")
         var isLogin = [[${session.loginUser != null}]];     //true
         if (isLogin) {
-            var killId = $(this).attr("sessionid") + "-" + $(this).attr("skuid");
+            var killId = $(this).attr("skuid");
             var code = $(this).attr("code");
             var num = $("#productNum").val();
             location.href = "http://seckill.mymall.com:1111/kill?killId=" + killId + "&key=" + code + "&num=" + num;

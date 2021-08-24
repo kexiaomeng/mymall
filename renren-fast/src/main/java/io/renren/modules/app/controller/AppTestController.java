@@ -40,7 +40,7 @@ public class AppTestController {
     @Login
     @GetMapping("userId")
     @ApiOperation("获取用户ID")
-    public R userInfo(@RequestAttribute("userId") Integer userId){
+    public R userInfo(@RequestAttribute("userId") Integer userId) {
         return R.ok().put("userId", userId);
     }
 

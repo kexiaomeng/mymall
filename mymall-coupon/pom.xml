@@ -16,6 +16,12 @@
             <groupId>com.tracy.mymall</groupId>
             <artifactId>mymall-common</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                        <groupId>org.springframework.session</groupId>
+                        <artifactId>spring-session-data-redis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

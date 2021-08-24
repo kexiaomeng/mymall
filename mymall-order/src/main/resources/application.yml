@@ -97,4 +97,6 @@ spring:
       ack-mode: manual
   thymeleaf:
     cache: false
+  mvc:
+    date-format: yyyy-MM-dd HH:mm:ss
 

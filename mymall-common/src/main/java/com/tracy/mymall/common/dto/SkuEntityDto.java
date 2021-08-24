@@ -14,7 +14,6 @@ public class SkuEntityDto implements Serializable {
     /**
      * skuId
      */
-    @TableId
     private Long skuId;
     /**
      * spuId

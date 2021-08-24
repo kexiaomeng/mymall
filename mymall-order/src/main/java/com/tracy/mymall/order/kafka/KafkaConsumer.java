@@ -1,8 +1,10 @@
 package com.tracy.mymall.order.kafka;
 
 import com.alibaba.fastjson.JSON;
+import com.tracy.mymall.common.dto.mq.QuickOrderDto;
 import com.tracy.mymall.common.enums.OrderStatusEnum;
 import com.tracy.mymall.order.entity.OrderEntity;
+import com.tracy.mymall.order.entity.OrderItemEntity;
 import com.tracy.mymall.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -18,6 +20,7 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -40,6 +43,7 @@ public class KafkaConsumer {
     public final static String lockedTopic = "OrderCreateTopic";
     public final static String releaseTopic = "OrderReleaseTopic";
     public final static String stockReleaseTopic = "StockedReleaseTopic";
+    private static final String KAFKA_TOPIC_SECKILL = "SeckillTopic";
 
     private final static int DELAY_TIME = 60;
 
@@ -114,12 +118,33 @@ public class KafkaConsumer {
         try {
             OrderEntity orderEntity = JSON.parseObject(record.value(), OrderEntity.class);
             OrderEntity realOrder = orderService.getById(orderEntity.getId());
-            if (realOrder.getStatus() .equals(OrderStatusEnum.CREATE_NEW.getCode()) ) {
+            if (realOrder.getStatus().equals(OrderStatusEnum.CREATE_NEW.getCode()) ) {
                 realOrder.setStatus(OrderStatusEnum.CANCLED.getCode());
                 orderService.updateById(realOrder);
                 // 关闭订单后向库存解锁对应得topic发送消息，进行库存的解锁
                 kafkaProducer.send(stockReleaseTopic, realOrder.getOrderSn(), realOrder);
             }
+            ack.acknowledge();
+        }catch(Exception e) {
+            // 失败后需要重新消费当前数据
+            ack.nack(1000L);
+            log.error("", e);
+        }
+
+
+    }
+
+    @KafkaListener(id = KAFKA_TOPIC_SECKILL, topics = {KAFKA_TOPIC_SECKILL})
+    public void consumerSeckillTopic(ConsumerRecord<String, String> record, Acknowledgment ack) {
+        log.info("【订单】收到秒杀订单消息[{}],开始处理", record.value());
+        if (!record.value().contains("seckillPrice")) {
+            ack.acknowledge();
+            return;
+        }
+        try {
+            QuickOrderDto quickOrderDto = JSON.parseObject(record.value(), QuickOrderDto.class);
+            orderService.createSeckillOrder(quickOrderDto);
+
             ack.acknowledge();
         }catch(Exception e) {
             // 失败后需要重新消费当前数据
